@@ -1,0 +1,3 @@
+# IDE0003: Remove qualification
+dotnet_style_qualification_for_event = false
+[*.{cs,vb}]
