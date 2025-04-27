@@ -39,9 +39,23 @@ namespace Dawn {
 		private Color effectColorDarkB = Color.black;
 		private Color effectColorDawnB = Color.black;
 		private Color effectColorHalfDawnB = Color.black;
+		
+		public readonly DawnDevTools dawnDev = new DawnDevTools();
+		
+		public static DayNight instance = null;
+
+		public void Log(object data) {
+			Logger.LogInfo(data);
+			Debug.Log(data);
+		}
 
 		public void OnEnable() {
+			instance = this;
+			
+			Log("Hello world!");
+
 			DawnEnums.Initialize();
+			dawnDev.Initialize();
 
 			On.RoomCamera.UpdateDayNightPalette += On_RoomCamera_UpdateDayNightPalette;
 
@@ -66,7 +80,22 @@ namespace Dawn {
 			On.RoomCamera.ModifyEffectColorB += On_RoomCamera_ModifyEffectColorB;
 			
 			On.Player.ProcessDebugInputs += On_Player_ProcessDebugInputs;
+			
+			On.Room.ctor += On_Room_ctor;
 		}
+
+		private void On_Room_ctor(On.Room.orig_ctor orig, Room self, RainWorldGame game, World world, AbstractRoom abstractRoom, bool devUI) {
+			orig(self, game, world, abstractRoom, devUI);
+			
+			self.roomSettings = new DawnRoomSettings(self.roomSettings);
+		}
+
+		public void OnDisable() {
+			DawnEnums.Cleanup();
+			dawnDev.Cleanup();
+		}
+		
+
 
 		private void On_Player_ProcessDebugInputs(On.Player.orig_ProcessDebugInputs orig, Player self) {
 			if (self.room == null || !self.room.game.devToolsActive) return;
@@ -80,10 +109,6 @@ namespace Dawn {
 				
 				rainCycle.dayNightCounter += 4000;
 			}
-		}
-
-		public void OnDisable() {
-			DawnEnums.Cleanup();
 		}
 		
 		private Color LerpColor(Color orig, Color halfDusk, Color dusk, Color dark, Color dawn, Color halfDawn) {

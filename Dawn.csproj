@@ -33,7 +33,7 @@
 		<Reference Include="$(BepInEx)/utils/PUBLIC-Assembly-CSharp.dll"><Private>false</Private></Reference>
 
 		<!-- <Reference Include="C:\Program Files (x86)\Steam\steamapps\workshop\content\312520\2920439476\plugins\RegionKit.dll"><Private>false</Private></Reference> -->
-		<!-- <Reference Include="$(BepInEx)/core/0Harmony.dll"><Private>false</Private></Reference> -->
+		<Reference Include="$(BepInEx)/core/0Harmony.dll"><Private>false</Private></Reference>
 
 		<!-- <Reference Include="C:\Program Files (x86)\Steam\steamapps\workshop\content\312520\2933196558\plugins\SlugBase.dll"><Private>false</Private></Reference> -->
 	</ItemGroup>
