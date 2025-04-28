@@ -4,6 +4,7 @@ using Dawn.Components;
 using System.Collections.Generic;
 using System;
 using System.Reflection;
+using System.IO;
 
 namespace Dawn {
 	public class DawnDevTools {
@@ -47,19 +48,25 @@ namespace Dawn {
 		}
 
 		private bool On_RoomSettings_Load(On.RoomSettings.orig_Load_Timeline orig, RoomSettings self, SlugcatStats.Timeline timelinePoint) {
-			bool result = orig(self, timelinePoint);
-			if (!result) return false;
+			if (self is not DawnRoomSettings settings) return orig(self, timelinePoint);
 
-			if (self is not DawnRoomSettings settings) return true;
+			bool result = false;
 
 			string path = self.filePath;
 			foreach (KeyValuePair<Time, RoomSettings> entry in settings.timeSettings) {
-				string specialPath = path.Substring(0, path.LastIndexOf(".")) + "_dawn-" + entry.Key + ".txt";
+				string specialPath = path.Substring(0, path.LastIndexOf(".")) + "_dawn-" + entry.Key + ".txt"; // `xx_room_settings_dawn-DAY.txt`
+
+				if (entry.Key == Time.NONE) specialPath = path; // Store NONE into default path
+
 				entry.Value.filePath = specialPath;
-				entry.Value.Load(timelinePoint);
+				bool selfResult = entry.Value.Load(timelinePoint);
+				
+				if (entry.Key == Time.NONE) result = selfResult; // Return result properly
 			}
 			
-			return true;
+			settings.SetAll();
+			
+			return result;
 		}
 
 		private void On_RoomSettings_Save(On.RoomSettings.orig_Save_string_bool orig, RoomSettings self, string path, bool saveAsTemplate) {
@@ -67,23 +74,35 @@ namespace Dawn {
 			
 			DawnRoomSettings settings = self as DawnRoomSettings;
 			if (settings == null) return;
+			
+			Dictionary<Time, RoomSettings> newSettings = [  ];
 
 			foreach (KeyValuePair<Time, RoomSettings> entry in settings.timeSettings) {
+				RoomSettings settingsEntry = entry.Value;
+
 				string specialPath = path.Substring(0, path.LastIndexOf(".")) + "_dawn-" + entry.Key + ".txt";
-				entry.Value.filePath = specialPath;
-				roomSettingsSaveMethod.Invoke(entry.Value, [ specialPath, false ]);
+				if (entry.Key == Time.NONE) {
+					settingsEntry = settings.CopyMainTo(settingsEntry);
+					specialPath = path;
+				}
+
+				settingsEntry.filePath = specialPath;
+				if (settingsEntry.effects.Count == 0 && entry.Key != Time.NONE) {
+					File.Delete(specialPath);
+				} else {
+					roomSettingsSaveMethod.Invoke(settingsEntry, [ specialPath, false ]);
+				}
+				
+				newSettings[entry.Key] = settingsEntry;
 			}
+			
+			settings.timeSettings = newSettings;
 		}
 
 		private void On_RoomSettingsPage_Refresh(On.DevInterface.RoomSettingsPage.orig_Refresh orig, RoomSettingsPage self) {
-			if (!dawnDevToolsActive) {
-				orig(self);
-				return;
-			}
-
 			List<RoomSettings.RoomEffect> effectsBackup = self.RoomSettings.effects;
 
-			self.RoomSettings.effects = ((DawnRoomSettings) self.RoomSettings).GetTimeSetting(currentTime).effects;
+			self.RoomSettings.effects = ((DawnRoomSettings) self.RoomSettings).GetTimeSetting(dawnDevToolsActive ? currentTime : Time.NONE).effects;
 			orig(self);
 			
 			self.RoomSettings.effects = effectsBackup;
@@ -104,7 +123,7 @@ namespace Dawn {
 			if (type == DevUISignalType.Create) {
 				List<RoomSettings.RoomEffect> effects = self.RoomSettings.effects;
 				
-				self.RoomSettings.effects = ((DawnRoomSettings) self.RoomSettings).GetTimeSetting(currentTime).effects;
+				self.RoomSettings.effects = ((DawnRoomSettings) self.RoomSettings).GetTimeSetting(dawnDevToolsActive ? currentTime : Time.NONE).effects;
 				orig(self, type, sender, message);
 				
 				self.RoomSettings.effects = effects;
@@ -147,6 +166,8 @@ namespace Dawn {
 
 			float x = 210f;
 			foreach (string time in Time.values.entries) {
+				if (time == "NONE") continue;
+
 				self.subNodes.Add(new DawnTimeButton(owner, "Dawn_Time_" + time, new Time(time, false), self, new Vector2(x, 710f), 70f, time));
 				x += 75f;
 			}

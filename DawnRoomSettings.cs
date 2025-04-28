@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Microsoft.Win32;
 
 namespace Dawn {
 	class DawnRoomSettings : RoomSettings {
@@ -7,6 +8,7 @@ namespace Dawn {
 			this.parent = settings.parent;
 			this.isAncestor = settings.isAncestor;
 			this.filePath = settings.filePath;
+
 			this.effects = settings.effects;
 			this.ambientSounds = settings.ambientSounds;
 			this.placedObjects = settings.placedObjects;
@@ -49,7 +51,12 @@ namespace Dawn {
 			
 			this.timeSettings = [];
 			foreach (string time in Time.values.entries) {
-				RoomSettings timeSetting = new RoomSettings(null, "roottemplate", null, false, false, null, null);
+				RoomSettings timeSetting;
+				if (time == "NONE") {
+					timeSetting = settings;
+				} else {
+					timeSetting = new RoomSettings(null, "roottemplate", null, false, false, null, null);
+				}
 				timeSetting.parent = DefaultRoomSettings.ancestor;
 				timeSettings.Add(new Time(time, false), timeSetting);
 			}
@@ -61,6 +68,75 @@ namespace Dawn {
 					this.Load((SlugcatStats.Timeline) null);
 				}
 			}
+		}
+		
+		public void SetAll() {
+			List<RoomSettings.RoomEffect.Type> types = [ ];
+			List<RoomSettings.RoomEffect.Type> selfHas = [ ];
+			
+			foreach (KeyValuePair<Time, RoomSettings> entry in timeSettings) {
+				if (entry.Key == Time.NONE) {
+					foreach (RoomEffect effect in entry.Value.effects) {
+						types.Add(effect.type);
+						selfHas.Add(effect.type);
+					}
+				} else {
+					foreach (RoomEffect effect in entry.Value.effects) {
+						types.Add(effect.type);
+					}
+				}
+			}
+			
+			foreach (RoomEffect.Type type in types) {
+				if (selfHas.Contains(type)) continue;
+				
+				effects.Add(new RoomEffect(type, 0.0f, false));
+			}
+		}
+		
+		public RoomSettings CopyMainTo(RoomSettings settings) {
+			// settings.effects = this.effects; NOTE: COMPLETE
+
+			settings.ambientSounds = this.ambientSounds;
+			settings.placedObjects = this.placedObjects;
+			settings.triggers = this.triggers;
+			settings.fadePalette = this.fadePalette;
+			settings.terrainFadePalette = this.terrainFadePalette;
+
+			settings.dType = this.dType;
+			settings.rInts = this.rInts;
+			settings.rumInts = this.rumInts;
+			settings.cDrips = this.cDrips;
+			settings.wSpeed = this.wSpeed;
+			settings.wAmp = this.wAmp;
+			settings.wLength = this.wLength;
+			settings.swAmp = this.swAmp;
+			settings.swLength = this.swLength;
+			settings.clds = this.clds;
+			settings.grm = this.grm;
+			settings.bkgDrnVl = this.bkgDrnVl;
+			settings.bkgDrnNoThreatVol = this.bkgDrnNoThreatVol;
+			settings.rndItmDns = this.rndItmDns;
+			settings.rndItmSprChnc = this.rndItmSprChnc;
+			settings.wtrRflctAlpha = this.wtrRflctAlpha;
+			settings.pal = this.pal;
+			settings.eColA = this.eColA;
+			settings.eColB = this.eColB;
+			settings.roomSpecificScript = this.roomSpecificScript;
+			settings.wetTerrain = this.wetTerrain;
+			settings.terrainLight = this.terrainLight;
+			settings.terrainStainAmount = this.terrainStainAmount;
+			settings.terrainStainBrightness = this.terrainStainBrightness;
+			settings.terrainStainHeight = this.terrainStainHeight;
+			settings.terrainWaves = this.terrainWaves;
+			settings.terrainEdgeRadius = this.terrainEdgeRadius;
+			settings.terrainGooHeight = this.terrainGooHeight;
+			settings.terrainGrain = this.terrainGrain;
+			settings.terrainDepth = this.terrainDepth;
+			settings.terrainSkyFade = this.terrainSkyFade;
+			settings.terrainPalette = this.terrainPalette;
+			
+			return settings;
 		}
 		
 		public RoomSettings GetTimeSetting(Time time) {

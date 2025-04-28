@@ -22,11 +22,12 @@ namespace Dawn {
 		private int timeSinceLog = 0;
 		private const bool DO_LOGS = true;
 
-		private float fadeBlendHalfDusk = 0f;
-		private float fadeBlendDusk = 0f;
-		private float fadeBlendDark = 0f;
-		private float fadeBlendDawn = 0f;
-		private float fadeBlendHalfDawn = 0f;
+		public float fadeBlendDay = 0f;
+		public float fadeBlendHalfDusk = 0f;
+		public float fadeBlendDusk = 0f;
+		public float fadeBlendDark = 0f;
+		public float fadeBlendDawn = 0f;
+		public float fadeBlendHalfDawn = 0f;
 		
 		private Color effectColorHalfDuskA = Color.black;
 		private Color effectColorDuskA = Color.black;
@@ -341,6 +342,7 @@ namespace Dawn {
 		}
 		
 		public void On_RoomCamera_UpdateDayNightPalette(On.RoomCamera.orig_UpdateDayNightPalette orig, RoomCamera self) {
+			fadeBlendDay = 1.0f;
 			fadeBlendHalfDusk = 0.0f;
 			fadeBlendDusk = 0.0f;
 			fadeBlendDark = 0.0f;
@@ -431,6 +433,7 @@ namespace Dawn {
 					self.paletteBlend = Mathf.Lerp(a, 1f, self.room.world.rainCycle.dayNightCounter / num);
 					self.ApplyFade();
 					
+					fadeBlendDay = Mathf.Lerp(1.0f, 0.0f, self.room.world.rainCycle.dayNightCounter / num);
 					fadeBlendHalfDusk = Mathf.Lerp(0.0f, 1.0f, self.room.world.rainCycle.dayNightCounter / num);
 
 				} else if (self.room.world.rainCycle.dayNightCounter == num) { // Fade Palette
@@ -531,6 +534,7 @@ namespace Dawn {
 					self.ApplyFade();
 					
 					fadeBlendHalfDawn = Mathf.Lerp(1.0f, 0.0f, (self.room.world.rainCycle.dayNightCounter - num * num6) / num);
+					fadeBlendDay = Mathf.Lerp(0.0f, 1.0f, (self.room.world.rainCycle.dayNightCounter - num * num6) / num);
 				}
 			} else {
 				orig(self);
@@ -539,6 +543,7 @@ namespace Dawn {
 			self.dayNightNeedsRefresh = false;
 			
 			self.ApplyEffectColorsToAllPaletteTextures(self.room.roomSettings.EffectColorA, self.room.roomSettings.EffectColorB);
+			TimeController.ApplyRoomSettings(self.room);
 		}
 	}
 }
