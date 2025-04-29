@@ -4,6 +4,7 @@ using RWCustom;
 using DevInterface;
 using System.Security.Permissions;
 using MoreSlugcats;
+using Microsoft.Win32;
 
 #pragma warning disable CS0618
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
@@ -12,7 +13,7 @@ using MoreSlugcats;
 namespace Dawn {
 
 	[BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
-	public class DayNight : BaseUnityPlugin {
+	public class Dawn : BaseUnityPlugin {
 		public const string PLUGIN_GUID = "goofybox.dawn";
 		public const string PLUGIN_NAME = "Dawn";
 		public const string PLUGIN_VERSION = "1.0.1";
@@ -20,12 +21,12 @@ namespace Dawn {
 		public static string MOD_ID = "dawn";
 
 		private int timeSinceLog = 0;
-		private const bool DO_LOGS = true;
+		private const bool DO_LOGS = false;
 
 		public float fadeBlendDay = 0f;
 		public float fadeBlendHalfDusk = 0f;
 		public float fadeBlendDusk = 0f;
-		public float fadeBlendDark = 0f;
+		public float fadeBlendNight = 0f;
 		public float fadeBlendDawn = 0f;
 		public float fadeBlendHalfDawn = 0f;
 		
@@ -41,9 +42,15 @@ namespace Dawn {
 		private Color effectColorDawnB = Color.black;
 		private Color effectColorHalfDawnB = Color.black;
 		
+		public Time timeLerpA = Time.NONE;
+		public Time timeLerpB = Time.NONE;
+		public float lerpAmount = 0.0f;
+		public Room currentRoom = null;
+		public int currentCameraPosition = 0;
+		
 		public readonly DawnDevTools dawnDev = new DawnDevTools();
 		
-		public static DayNight instance = null;
+		public static Dawn instance = null;
 
 		public void Log(object data) {
 			Logger.LogInfo(data);
@@ -57,6 +64,7 @@ namespace Dawn {
 
 			DawnEnums.Initialize();
 			dawnDev.Initialize();
+			TerrainController.Initialize();
 
 			On.RoomCamera.UpdateDayNightPalette += On_RoomCamera_UpdateDayNightPalette;
 
@@ -77,6 +85,7 @@ namespace Dawn {
 
 			On.World.ctor += On_World_ctor;
 			
+			On.RoomCamera.ApplyPalette += On_RoomCamera_ApplyPalette;
 			On.RoomCamera.ModifyEffectColorA += On_RoomCamera_ModifyEffectColorA;
 			On.RoomCamera.ModifyEffectColorB += On_RoomCamera_ModifyEffectColorB;
 			
@@ -85,18 +94,25 @@ namespace Dawn {
 			On.Room.ctor += On_Room_ctor;
 		}
 
+		public void OnDisable() {
+			DawnEnums.Cleanup();
+			dawnDev.Cleanup();
+			TerrainController.Cleanup();
+		}
+		
+
+
+		private void On_RoomCamera_ApplyPalette(On.RoomCamera.orig_ApplyPalette orig, RoomCamera self) {
+			currentRoom = self.room;
+			currentCameraPosition = self.currentCameraPosition;
+			orig(self);
+		}
+
 		private void On_Room_ctor(On.Room.orig_ctor orig, Room self, RainWorldGame game, World world, AbstractRoom abstractRoom, bool devUI) {
 			orig(self, game, world, abstractRoom, devUI);
 			
 			self.roomSettings = new DawnRoomSettings(self.roomSettings);
 		}
-
-		public void OnDisable() {
-			DawnEnums.Cleanup();
-			dawnDev.Cleanup();
-		}
-		
-
 
 		private void On_Player_ProcessDebugInputs(On.Player.orig_ProcessDebugInputs orig, Player self) {
 			if (self.room == null || !self.room.game.devToolsActive) return;
@@ -117,7 +133,7 @@ namespace Dawn {
 				orig,
 				halfDusk, fadeBlendHalfDusk),
 				dusk, fadeBlendDusk),
-				dark, fadeBlendDark),
+				dark, fadeBlendNight),
 				dawn, fadeBlendDawn),
 				halfDawn, fadeBlendHalfDawn
 			);
@@ -345,9 +361,13 @@ namespace Dawn {
 			fadeBlendDay = 1.0f;
 			fadeBlendHalfDusk = 0.0f;
 			fadeBlendDusk = 0.0f;
-			fadeBlendDark = 0.0f;
+			fadeBlendNight = 0.0f;
 			fadeBlendDawn = 0.0f;
 			fadeBlendHalfDawn = 0.0f;
+
+			timeLerpA = Time.Day;
+			timeLerpB = Time.HalfDusk;
+			lerpAmount = 0.0f;
 
 			float effect_dawn = self.room.roomSettings.GetEffectAmount(DawnEnums.DawnEffect) * 0.99f;
 			DawnRainCycle dawnRainCycle = self.room.world.rainCycle as DawnRainCycle;
@@ -357,7 +377,6 @@ namespace Dawn {
 			}
 
 			if (effect_dawn > 0f && self.room.world.rainCycle.timer >= self.room.world.rainCycle.cycleLength) {
-			
 				float num = 1320f;
 				float num2 = 1.47f;
 				float num3 = 1.92f;
@@ -398,6 +417,168 @@ namespace Dawn {
 					dawnPalette = 0;
 				}
 
+				fadeBlendDay = 0.0f;
+
+				if (self.room.world.rainCycle.dayNightCounter < num) { // Normal -> Fade Palette       NOTE: MILESTONE 1
+					if (self.room.roomSettings.GetEffectAmount(RoomSettings.RoomEffect.Type.AboveCloudsView) > 0f && self.room.roomSettings.GetEffectAmount(RoomSettings.RoomEffect.Type.SkyAndLightBloom) > 0f) {
+						self.room.roomSettings.GetEffect(RoomSettings.RoomEffect.Type.SkyAndLightBloom).amount = 0f;
+					}
+
+					float a = 0.0f;
+					if (self.room.roomSettings.fadePalette != null && self.room.roomSettings.fadePalette.fades.Length > self.currentCameraPosition) {
+						a = self.room.roomSettings.fadePalette.fades[self.currentCameraPosition];
+					}
+
+					lerpAmount = self.room.world.rainCycle.dayNightCounter / num;
+					timeLerpA = Time.Day;
+					timeLerpB = Time.HalfDusk;
+
+					self.paletteBlend = Mathf.Lerp(a, 1f, lerpAmount);
+					self.ApplyFade();
+					
+					fadeBlendDay = Mathf.Lerp(1.0f, 0.0f, lerpAmount);
+					fadeBlendHalfDusk = Mathf.Lerp(0.0f, 1.0f, lerpAmount);
+
+				} else if (self.room.world.rainCycle.dayNightCounter == num) { // Fade Palette
+					self.ChangeBothPalettes(self.paletteB, self.room.world.rainCycle.duskPalette, 0f);
+					
+					fadeBlendHalfDusk = 1.0f;
+					lerpAmount = 1.0f;
+					timeLerpB = Time.HalfDusk;
+
+				} else if (self.room.world.rainCycle.dayNightCounter < num * num2) { // Fade Palette -> Dusk Palette NOTE: MILESTONE 2
+					if (self.paletteBlend == 1f || self.paletteB != self.room.world.rainCycle.duskPalette || self.dayNightNeedsRefresh) {
+						self.ChangeBothPalettes(self.paletteB, self.room.world.rainCycle.duskPalette, 0f);
+					}
+					
+					lerpAmount = (self.room.world.rainCycle.dayNightCounter - num) / (num * (num2 - 1.0f));
+					timeLerpA = Time.HalfDusk;
+					timeLerpB = Time.Dusk;
+					
+					self.paletteBlend = Mathf.InverseLerp(num, num * num2, self.room.world.rainCycle.dayNightCounter);
+					self.ApplyFade();
+
+					fadeBlendHalfDusk = Mathf.Lerp(1.0f, 0.0f, lerpAmount);
+					fadeBlendDusk = Mathf.Lerp(0.0f, 1.0f, lerpAmount);
+
+				} else if (self.room.world.rainCycle.dayNightCounter == num * num2) { // Dusk Palette
+					self.ChangeBothPalettes(self.room.world.rainCycle.duskPalette, self.room.world.rainCycle.nightPalette, 0f);
+					
+					fadeBlendDusk = 1.0f;
+
+					timeLerpB = Time.Dusk;
+					lerpAmount = 1.0f;
+
+				} else if (self.room.world.rainCycle.dayNightCounter < num * num3) { // Dusk Palette -> Evening Palette         NOTE: MILESTONE 3
+					if (self.paletteBlend == 1f || self.paletteB != self.room.world.rainCycle.nightPalette || self.paletteA != self.room.world.rainCycle.duskPalette || self.dayNightNeedsRefresh) {
+						self.ChangeBothPalettes(self.room.world.rainCycle.duskPalette, self.room.world.rainCycle.nightPalette, 0f);
+					}
+					
+					lerpAmount = (self.room.world.rainCycle.dayNightCounter - num * num2) / (num * (num3 - num2));
+					timeLerpA = Time.Dusk;
+					timeLerpB = Time.Night;
+
+					self.paletteBlend = Mathf.InverseLerp(num * num2, num * num3, self.room.world.rainCycle.dayNightCounter) * (self.effect_dayNight * 0.99f);
+					self.ApplyFade();
+					
+					fadeBlendDusk = Mathf.Lerp(1.0f, 0.0f, lerpAmount);
+					fadeBlendNight = Mathf.Lerp(0.0f, 1.0f, lerpAmount);
+
+				} else if (self.room.world.rainCycle.dayNightCounter == num * num3) { // Evening Palette
+					self.ChangeBothPalettes(self.room.world.rainCycle.duskPalette, self.room.world.rainCycle.nightPalette, self.effect_dayNight * 0.99f);
+					
+					lerpAmount = 1.0f;
+					timeLerpB = Time.Night;
+					fadeBlendNight = 1.0f;
+
+				} else if (self.room.world.rainCycle.dayNightCounter < num * num4) { // Evening Palette -> Night Palette       NOTE: MILESTONE 4
+					if (self.paletteBlend == 1f || self.paletteB != self.room.world.rainCycle.nightPalette || self.paletteA != self.room.world.rainCycle.duskPalette || self.dayNightNeedsRefresh) {
+						self.ChangeBothPalettes(self.room.world.rainCycle.duskPalette, self.room.world.rainCycle.nightPalette, self.effect_dayNight);
+					}
+
+					lerpAmount = 1.0f;
+					timeLerpB = Time.Night;
+
+					self.paletteBlend = 1.0f - (Mathf.InverseLerp(num * num4, num * num3, self.room.world.rainCycle.dayNightCounter) * (1.0f - self.effect_dayNight * 0.99f));
+					self.ApplyFade();
+
+					fadeBlendNight = 1.0f;
+
+				} else if (self.room.world.rainCycle.dayNightCounter == num * num4) { // Night Palette
+					self.ChangeBothPalettes(self.room.world.rainCycle.nightPalette, dawnPalette, 0.0f);
+					
+					lerpAmount = 1.0f;
+					timeLerpB = Time.Night;
+
+					fadeBlendNight = 1.0f;
+
+				} else if (self.room.world.rainCycle.dayNightCounter < num * num5) { // Night Palette -> Dawn Palette         NOTE: MILESTONE 5
+					if (self.paletteBlend == 1f || self.paletteA != self.room.world.rainCycle.nightPalette || self.paletteB != dawnPalette || self.dayNightNeedsRefresh) {
+						self.ChangeBothPalettes(self.room.world.rainCycle.nightPalette, dawnPalette, 0.0f);
+					}
+
+					lerpAmount = (self.room.world.rainCycle.dayNightCounter - num * num4) / (num * (num5 - num4));
+					timeLerpA = Time.Night;
+					timeLerpB = Time.Dawn;
+
+					self.paletteBlend = Mathf.InverseLerp(num * num4, num * num5, self.room.world.rainCycle.dayNightCounter);
+					self.ApplyFade();
+
+					fadeBlendNight = Mathf.Lerp(1.0f, 0.0f, lerpAmount);
+					fadeBlendDawn = Mathf.Lerp(0.0f, 1.0f, lerpAmount);
+
+				} else if (self.room.world.rainCycle.dayNightCounter == num * num5) { // Dawn Palette
+					self.ChangeBothPalettes(dawnPalette, dawnPalette, 0.0f);
+					
+					lerpAmount = 1.0f;
+					timeLerpB = Time.Dawn;
+					
+					fadeBlendDawn = 1.0f;
+
+				} else if (self.room.world.rainCycle.dayNightCounter < num * num6) { // Dawn Palette -> Fade Palette              NOTE: MILESTONE 6
+					if (self.paletteBlend == 1f || self.paletteA != dawnPalette || self.dayNightNeedsRefresh) {
+						self.ChangeBothPalettes(dawnPalette, fadePalette, 0.0f);
+					}
+
+					lerpAmount = (self.room.world.rainCycle.dayNightCounter - num * num5) / (num * (num6 - num5));
+					timeLerpA = Time.Dawn;
+					timeLerpB = Time.HalfDawn;
+
+					self.paletteBlend = Mathf.InverseLerp(num * num5, num * num6, self.room.world.rainCycle.dayNightCounter);
+					self.ApplyFade();
+					
+					fadeBlendDawn = Mathf.Lerp(1.0f, 0.0f, lerpAmount);
+					fadeBlendHalfDawn = Mathf.Lerp(0.0f, 1.0f, lerpAmount);
+
+				} else if (self.room.world.rainCycle.dayNightCounter == num * num6) { // Fade Palette
+					self.ChangeBothPalettes(normalPalette, fadePalette, 1.0f);
+					
+					lerpAmount = 1.0f;
+					timeLerpB = Time.HalfDawn;
+					
+					fadeBlendDawn = 0.0f;
+					fadeBlendHalfDawn = 1.0f;
+
+				} else if (self.room.world.rainCycle.dayNightCounter >= num * num6) { // Fade Palette -> Normal               NOTE: MILESTONE 7
+					if (self.paletteBlend == 0f || self.paletteA != normalPalette || self.dayNightNeedsRefresh) {
+						self.ChangeBothPalettes(normalPalette, fadePalette, 1.0f);
+					}
+
+					lerpAmount = (self.room.world.rainCycle.dayNightCounter - num * num6) / num;
+					timeLerpA = Time.HalfDawn;
+					timeLerpB = Time.Day;
+
+					float a = 0.0f;
+					if (self.room.roomSettings.fadePalette != null && self.room.roomSettings.fadePalette.fades.Length > self.currentCameraPosition) {
+						a = self.room.roomSettings.fadePalette.fades[self.currentCameraPosition];
+					}
+
+					self.paletteBlend = Mathf.Lerp(1f, a, lerpAmount);
+					self.ApplyFade();
+					
+					fadeBlendHalfDawn = Mathf.Lerp(1.0f, 0.0f, lerpAmount);
+					fadeBlendDay = Mathf.Lerp(0.0f, 1.0f, lerpAmount);
+				}
 
 
 				timeSinceLog++;
@@ -416,125 +597,11 @@ namespace Dawn {
 					// Debug.Log("Dusk   Palette: " + self.room.world.rainCycle.duskPalette);
 					// Debug.Log("Night  Palette: " + self.room.world.rainCycle.nightPalette);
 					// Debug.Log("Dawn   Palette: " + dawnPalette);
+					Debug.Log("== Lerp A: " + timeLerpA);
+					Debug.Log("== Lerp B: " + timeLerpB);
+					Debug.Log("== Lerp T: " + lerpAmount);
 					Debug.Log("~~ Current Fade: " + self.paletteBlend);
 					Debug.Log("~~ Timer: " + self.room.world.rainCycle.timer + " / " + self.room.world.rainCycle.sunDownStartTime);
-				}
-
-				if (self.room.world.rainCycle.dayNightCounter < num) { // Normal -> Fade Palette       NOTE: MILESTONE 1
-					if (self.room.roomSettings.GetEffectAmount(RoomSettings.RoomEffect.Type.AboveCloudsView) > 0f && self.room.roomSettings.GetEffectAmount(RoomSettings.RoomEffect.Type.SkyAndLightBloom) > 0f) {
-						self.room.roomSettings.GetEffect(RoomSettings.RoomEffect.Type.SkyAndLightBloom).amount = 0f;
-					}
-
-					float a = 0.0f;
-					if (self.room.roomSettings.fadePalette != null && self.room.roomSettings.fadePalette.fades.Length > self.currentCameraPosition) {
-						a = self.room.roomSettings.fadePalette.fades[self.currentCameraPosition];
-					}
-
-					self.paletteBlend = Mathf.Lerp(a, 1f, self.room.world.rainCycle.dayNightCounter / num);
-					self.ApplyFade();
-					
-					fadeBlendDay = Mathf.Lerp(1.0f, 0.0f, self.room.world.rainCycle.dayNightCounter / num);
-					fadeBlendHalfDusk = Mathf.Lerp(0.0f, 1.0f, self.room.world.rainCycle.dayNightCounter / num);
-
-				} else if (self.room.world.rainCycle.dayNightCounter == num) { // Fade Palette
-					self.ChangeBothPalettes(self.paletteB, self.room.world.rainCycle.duskPalette, 0f);
-					
-					fadeBlendHalfDusk = 1.0f;
-
-				} else if (self.room.world.rainCycle.dayNightCounter < num * num2) { // Fade Palette -> Dusk Palette NOTE: MILESTONE 2
-					if (self.paletteBlend == 1f || self.paletteB != self.room.world.rainCycle.duskPalette || self.dayNightNeedsRefresh) {
-						self.ChangeBothPalettes(self.paletteB, self.room.world.rainCycle.duskPalette, 0f);
-					}
-					self.paletteBlend = Mathf.InverseLerp(num, num * num2, self.room.world.rainCycle.dayNightCounter);
-					self.ApplyFade();
-
-					fadeBlendHalfDusk = Mathf.Lerp(1.0f, 0.0f, self.room.world.rainCycle.dayNightCounter / (num * num2));
-					fadeBlendDusk = Mathf.Lerp(0.0f, 1.0f, self.room.world.rainCycle.dayNightCounter / (num * num2));
-
-				} else if (self.room.world.rainCycle.dayNightCounter == num * num2) { // Dusk Palette
-					self.ChangeBothPalettes(self.room.world.rainCycle.duskPalette, self.room.world.rainCycle.nightPalette, 0f);
-					
-					fadeBlendDusk = 1.0f;
-
-				} else if (self.room.world.rainCycle.dayNightCounter < num * num3) { // Dusk Palette -> Evening Palette         NOTE: MILESTONE 3
-					if (self.paletteBlend == 1f || self.paletteB != self.room.world.rainCycle.nightPalette || self.paletteA != self.room.world.rainCycle.duskPalette || self.dayNightNeedsRefresh) {
-						self.ChangeBothPalettes(self.room.world.rainCycle.duskPalette, self.room.world.rainCycle.nightPalette, 0f);
-					}
-
-					self.paletteBlend = Mathf.InverseLerp(num * num2, num * num3, self.room.world.rainCycle.dayNightCounter) * (self.effect_dayNight * 0.99f);
-					self.ApplyFade();
-					
-					fadeBlendDusk = Mathf.Lerp(1.0f, 0.0f, (self.room.world.rainCycle.dayNightCounter - num * num2) / (num * (num3 - num2)));
-					fadeBlendDark = Mathf.Lerp(0.0f, 1.0f, (self.room.world.rainCycle.dayNightCounter - num * num2) / (num * (num3 - num2)));
-
-				} else if (self.room.world.rainCycle.dayNightCounter == num * num3) { // Evening Palette
-					self.ChangeBothPalettes(self.room.world.rainCycle.duskPalette, self.room.world.rainCycle.nightPalette, self.effect_dayNight * 0.99f);
-					
-					fadeBlendDark = 1.0f;
-
-				} else if (self.room.world.rainCycle.dayNightCounter < num * num4) { // Evening Palette -> Night Palette       NOTE: MILESTONE 4
-					if (self.paletteBlend == 1f || self.paletteB != self.room.world.rainCycle.nightPalette || self.paletteA != self.room.world.rainCycle.duskPalette || self.dayNightNeedsRefresh) {
-						self.ChangeBothPalettes(self.room.world.rainCycle.duskPalette, self.room.world.rainCycle.nightPalette, self.effect_dayNight);
-					}
-
-					self.paletteBlend = 1.0f - (Mathf.InverseLerp(num * num4, num * num3, self.room.world.rainCycle.dayNightCounter) * (1.0f - self.effect_dayNight * 0.99f));
-					self.ApplyFade();
-
-					fadeBlendDark = 1.0f;
-
-				} else if (self.room.world.rainCycle.dayNightCounter == num * num4) { // Night Palette
-					self.ChangeBothPalettes(self.room.world.rainCycle.nightPalette, dawnPalette, 0.0f);
-					
-					fadeBlendDark = 1.0f;
-
-				} else if (self.room.world.rainCycle.dayNightCounter < num * num5) { // Night Palette -> Dawn Palette         NOTE: MILESTONE 5
-					if (self.paletteBlend == 1f || self.paletteA != self.room.world.rainCycle.nightPalette || self.paletteB != dawnPalette || self.dayNightNeedsRefresh) {
-						self.ChangeBothPalettes(self.room.world.rainCycle.nightPalette, dawnPalette, 0.0f);
-					}
-
-					self.paletteBlend = Mathf.InverseLerp(num * num4, num * num5, self.room.world.rainCycle.dayNightCounter);
-					self.ApplyFade();
-
-					fadeBlendDark = Mathf.Lerp(1.0f, 0.0f, (self.room.world.rainCycle.dayNightCounter - num * num4) / (num * (num5 - num4)));
-					fadeBlendDawn = Mathf.Lerp(0.0f, 1.0f, (self.room.world.rainCycle.dayNightCounter - num * num4) / (num * (num5 - num4)));
-
-				} else if (self.room.world.rainCycle.dayNightCounter == num * num5) { // Dawn Palette
-					self.ChangeBothPalettes(dawnPalette, dawnPalette, 0.0f);
-					
-					fadeBlendDawn = 1.0f;
-
-				} else if (self.room.world.rainCycle.dayNightCounter < num * num6) { // Dawn Palette -> Fade Palette              NOTE: MILESTONE 6
-					if (self.paletteBlend == 1f || self.paletteA != dawnPalette || self.dayNightNeedsRefresh) {
-						self.ChangeBothPalettes(dawnPalette, fadePalette, 0.0f);
-					}
-
-					self.paletteBlend = Mathf.InverseLerp(num * num5, num * num6, self.room.world.rainCycle.dayNightCounter);
-					self.ApplyFade();
-					
-					fadeBlendDawn = Mathf.Lerp(1.0f, 0.0f, (self.room.world.rainCycle.dayNightCounter - num * num5) / (num * (num6 - num5)));
-					fadeBlendHalfDawn = Mathf.Lerp(0.0f, 1.0f, (self.room.world.rainCycle.dayNightCounter - num * num5) / (num * (num6 - num5)));
-
-				} else if (self.room.world.rainCycle.dayNightCounter == num * num6) { // Fade Palette
-					self.ChangeBothPalettes(normalPalette, fadePalette, 1.0f);
-					
-					fadeBlendDawn = 0.0f;
-					fadeBlendHalfDawn = 1.0f;
-
-				} else if (self.room.world.rainCycle.dayNightCounter >= num * num6) { // Fade Palette -> Normal               NOTE: MILESTONE 7
-					if (self.paletteBlend == 0f || self.paletteA != normalPalette || self.dayNightNeedsRefresh) {
-						self.ChangeBothPalettes(normalPalette, fadePalette, 1.0f);
-					}
-
-					float a = 0.0f;
-					if (self.room.roomSettings.fadePalette != null && self.room.roomSettings.fadePalette.fades.Length > self.currentCameraPosition) {
-						a = self.room.roomSettings.fadePalette.fades[self.currentCameraPosition];
-					}
-
-					self.paletteBlend = Mathf.Lerp(1f, a, (self.room.world.rainCycle.dayNightCounter - num * num6) / num);
-					self.ApplyFade();
-					
-					fadeBlendHalfDawn = Mathf.Lerp(1.0f, 0.0f, (self.room.world.rainCycle.dayNightCounter - num * num6) / num);
-					fadeBlendDay = Mathf.Lerp(0.0f, 1.0f, (self.room.world.rainCycle.dayNightCounter - num * num6) / num);
 				}
 			} else {
 				orig(self);

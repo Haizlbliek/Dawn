@@ -12,16 +12,13 @@ namespace Dawn {
 		static private float GetStrength(DawnRoomSettings settings, RoomSettings.RoomEffect.Type type) {
 			float defaultValue = GetOr(settings.GetTimeSetting(Time.NONE), type, 0.0f, 1.0f);
 			
-			float totalStrength = DayNight.instance.fadeBlendDay + DayNight.instance.fadeBlendHalfDusk + DayNight.instance.fadeBlendDusk + DayNight.instance.fadeBlendDark + DayNight.instance.fadeBlendDawn + DayNight.instance.fadeBlendHalfDawn;
-			if (totalStrength <= 0.01f) return defaultValue;
-			
 			return
-				GetOr(settings.GetTimeSetting(Time.Day), type, defaultValue, DayNight.instance.fadeBlendDay) +
-				GetOr(settings.GetTimeSetting(Time.HalfDusk), type, defaultValue, DayNight.instance.fadeBlendHalfDusk) +
-				GetOr(settings.GetTimeSetting(Time.Dusk), type, defaultValue, DayNight.instance.fadeBlendDusk) +
-				GetOr(settings.GetTimeSetting(Time.Night), type, defaultValue, DayNight.instance.fadeBlendDark) +
-				GetOr(settings.GetTimeSetting(Time.Dawn), type, defaultValue, DayNight.instance.fadeBlendDawn) +
-				GetOr(settings.GetTimeSetting(Time.HalfDawn), type, defaultValue, DayNight.instance.fadeBlendHalfDawn)
+				GetOr(settings.GetTimeSetting(Time.Day), type, defaultValue, Dawn.instance.fadeBlendDay) +
+				GetOr(settings.GetTimeSetting(Time.HalfDusk), type, defaultValue, Dawn.instance.fadeBlendHalfDusk) +
+				GetOr(settings.GetTimeSetting(Time.Dusk), type, defaultValue, Dawn.instance.fadeBlendDusk) +
+				GetOr(settings.GetTimeSetting(Time.Night), type, defaultValue, Dawn.instance.fadeBlendNight) +
+				GetOr(settings.GetTimeSetting(Time.Dawn), type, defaultValue, Dawn.instance.fadeBlendDawn) +
+				GetOr(settings.GetTimeSetting(Time.HalfDawn), type, defaultValue, Dawn.instance.fadeBlendHalfDawn)
 			;
 		}
 	

@@ -8,14 +8,13 @@ using System.IO;
 
 namespace Dawn {
 	public class DawnDevTools {
-		public static bool dawnDevToolsActive;
 		public static Time currentTime = Time.Day;
 		
 		private static MethodInfo roomSettingsSaveMethod;
 		
 		public void Initialize() {
-			dawnDevToolsActive = false;
-
+			currentTime = Time.NONE;
+		
 			On.DevInterface.Page.ctor += On_Page_ctor;
 			On.DevInterface.RoomSettingsPage.Signal += On_RoomSettingsPage_Signal;
 			// On.DevInterface.ObjectsPage.Signal += On_ObjectsPage_Signal;
@@ -27,6 +26,12 @@ namespace Dawn {
 			On.DevInterface.RoomSettingsPage.Refresh += On_RoomSettingsPage_Refresh;
 			On.RoomSettings.Save_string_bool += On_RoomSettings_Save;
 			On.RoomSettings.Load_Timeline += On_RoomSettings_Load;
+			
+			On.DevInterface.RoomSettingSlider.Refresh += On_RoomSettingSlider_Refresh;
+			On.DevInterface.RoomSettingSlider.NubDragged += On_RoomSettingSlider_NubDragged;
+			On.DevInterface.RoomSettingSlider.ClickedResetToInherent += On_RoomSettingSlider_ClickedResetToInherit;
+			
+			On.DevInterface.DevUI.SwitchPage += On_DevUI_SwitchPage;
 			
 			roomSettingsSaveMethod = typeof(RoomSettings).GetMethod("Save", BindingFlags.NonPublic | BindingFlags.Instance, null, [ typeof(string), typeof(bool) ], null);
 		}
@@ -44,7 +49,52 @@ namespace Dawn {
 			On.RoomSettings.Save_string_bool -= On_RoomSettings_Save;
 			On.RoomSettings.Load_Timeline -= On_RoomSettings_Load;
 			
+			On.DevInterface.RoomSettingSlider.Refresh -= On_RoomSettingSlider_Refresh;
+			On.DevInterface.RoomSettingSlider.NubDragged -= On_RoomSettingSlider_NubDragged;
+			On.DevInterface.RoomSettingSlider.ClickedResetToInherent -= On_RoomSettingSlider_ClickedResetToInherit;
+			
+			On.DevInterface.DevUI.SwitchPage -= On_DevUI_SwitchPage;
+			
 			roomSettingsSaveMethod = null;
+		}
+
+		public static Time GetCurrentTime() {
+			return currentTime;
+		}
+
+		private void On_DevUI_SwitchPage(On.DevInterface.DevUI.orig_SwitchPage orig, DevUI self, int newPage) {
+			orig(self, newPage);
+			
+			if (self.activePage is not RoomSettingsPage) {
+				currentTime = Time.NONE;
+			}
+		}
+
+		private void On_RoomSettingSlider_ClickedResetToInherit(On.DevInterface.RoomSettingSlider.orig_ClickedResetToInherent orig, RoomSettingSlider self) {
+			RoomSettings backup = self.owner.room.roomSettings;
+
+			if (backup is DawnRoomSettings settings) self.owner.room.roomSettings = settings.GetTimeSetting(GetCurrentTime());
+			orig(self);
+			
+			self.owner.room.roomSettings = backup;
+		}
+
+		private void On_RoomSettingSlider_NubDragged(On.DevInterface.RoomSettingSlider.orig_NubDragged orig, RoomSettingSlider self, float nubPos) {
+			RoomSettings backup = self.owner.room.roomSettings;
+
+			if (backup is DawnRoomSettings settings) self.owner.room.roomSettings = settings.GetTimeSetting(GetCurrentTime());
+			orig(self, nubPos);
+			
+			self.owner.room.roomSettings = backup;
+		}
+
+		private void On_RoomSettingSlider_Refresh(On.DevInterface.RoomSettingSlider.orig_Refresh orig, RoomSettingSlider self) {
+			RoomSettings backup = self.owner.room.roomSettings;
+
+			if (backup is DawnRoomSettings settings) self.owner.room.roomSettings = settings.GetTimeSetting(GetCurrentTime());
+			orig(self);
+			
+			self.owner.room.roomSettings = backup;
 		}
 
 		private bool On_RoomSettings_Load(On.RoomSettings.orig_Load_Timeline orig, RoomSettings self, SlugcatStats.Timeline timelinePoint) {
@@ -87,7 +137,7 @@ namespace Dawn {
 				}
 
 				settingsEntry.filePath = specialPath;
-				if (settingsEntry.effects.Count == 0 && entry.Key != Time.NONE) {
+				if (entry.Key != Time.NONE && DawnRoomSettings.EmptySettings(settingsEntry)) {
 					File.Delete(specialPath);
 				} else {
 					roomSettingsSaveMethod.Invoke(settingsEntry, [ specialPath, false ]);
@@ -100,12 +150,12 @@ namespace Dawn {
 		}
 
 		private void On_RoomSettingsPage_Refresh(On.DevInterface.RoomSettingsPage.orig_Refresh orig, RoomSettingsPage self) {
-			List<RoomSettings.RoomEffect> effectsBackup = self.RoomSettings.effects;
+			RoomSettings backup = self.RoomSettings;
 
-			self.RoomSettings.effects = ((DawnRoomSettings) self.RoomSettings).GetTimeSetting(dawnDevToolsActive ? currentTime : Time.NONE).effects;
+			if (backup is DawnRoomSettings settings) self.owner.room.roomSettings = settings.GetTimeSetting(GetCurrentTime());
 			orig(self);
 			
-			self.RoomSettings.effects = effectsBackup;
+			self.owner.room.roomSettings = backup;
 		}
 		
 		private void ApplyDawnSignals(Action<Page, DevUISignalType, DevUINode, string> orig, Page self, DevUISignalType type, DevUINode sender, string message) {
@@ -114,16 +164,13 @@ namespace Dawn {
 				if (idstring.StartsWith("Dawn_Time_")) {
 					currentTime = new Time(idstring.Substring(10), false);
 					self.Refresh();
-				} else if (idstring == "Dawn_Active") {
-					dawnDevToolsActive = !dawnDevToolsActive;
-					self.Refresh();
 				}
 			}
 			
 			if (type == DevUISignalType.Create) {
 				List<RoomSettings.RoomEffect> effects = self.RoomSettings.effects;
 				
-				self.RoomSettings.effects = ((DawnRoomSettings) self.RoomSettings).GetTimeSetting(dawnDevToolsActive ? currentTime : Time.NONE).effects;
+				self.RoomSettings.effects = ((DawnRoomSettings) self.RoomSettings).GetTimeSetting(GetCurrentTime()).effects;
 				orig(self, type, sender, message);
 				
 				self.RoomSettings.effects = effects;
@@ -162,12 +209,8 @@ namespace Dawn {
 			
 			if (self is not DevInterface.RoomSettingsPage) return;
 			
-			self.subNodes.Add(new DawnEnableButton(owner, "Dawn_Active", self, new Vector2(100f, 710f), 100f, dawnDevToolsActive ? "Dawn - Enabled" : "Dawn - Disabled"));
-
-			float x = 210f;
+			float x = 100f;
 			foreach (string time in Time.values.entries) {
-				if (time == "NONE") continue;
-
 				self.subNodes.Add(new DawnTimeButton(owner, "Dawn_Time_" + time, new Time(time, false), self, new Vector2(x, 710f), 70f, time));
 				x += 75f;
 			}

@@ -43,7 +43,7 @@ namespace Dawn.Components {
 		}
 		
 		public virtual bool Active() {
-			return DawnDevTools.dawnDevToolsActive;
+			return true;
 		}
 
 		public override void Update() {

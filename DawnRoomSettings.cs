@@ -101,40 +101,40 @@ namespace Dawn {
 			settings.placedObjects = this.placedObjects;
 			settings.triggers = this.triggers;
 			settings.fadePalette = this.fadePalette;
-			settings.terrainFadePalette = this.terrainFadePalette;
+			// settings.terrainFadePalette = this.terrainFadePalette;
 
 			settings.dType = this.dType;
-			settings.rInts = this.rInts;
-			settings.rumInts = this.rumInts;
-			settings.cDrips = this.cDrips;
-			settings.wSpeed = this.wSpeed;
-			settings.wAmp = this.wAmp;
-			settings.wLength = this.wLength;
-			settings.swAmp = this.swAmp;
-			settings.swLength = this.swLength;
-			settings.clds = this.clds;
-			settings.grm = this.grm;
-			settings.bkgDrnVl = this.bkgDrnVl;
-			settings.bkgDrnNoThreatVol = this.bkgDrnNoThreatVol;
-			settings.rndItmDns = this.rndItmDns;
-			settings.rndItmSprChnc = this.rndItmSprChnc;
-			settings.wtrRflctAlpha = this.wtrRflctAlpha;
+			// settings.rInts = this.rInts;
+			// settings.rumInts = this.rumInts;
+			// settings.cDrips = this.cDrips;
+			// settings.wSpeed = this.wSpeed;
+			// settings.wAmp = this.wAmp;
+			// settings.wLength = this.wLength;
+			// settings.swAmp = this.swAmp;
+			// settings.swLength = this.swLength;
+			// settings.clds = this.clds;
+			// settings.grm = this.grm;
+			// settings.bkgDrnVl = this.bkgDrnVl; // NOTE: Idk
+			// settings.bkgDrnNoThreatVol = this.bkgDrnNoThreatVol; // NOTE: Idk
+			// settings.rndItmDns = this.rndItmDns;
+			// settings.rndItmSprChnc = this.rndItmSprChnc;
+			// settings.wtrRflctAlpha = this.wtrRflctAlpha;
 			settings.pal = this.pal;
 			settings.eColA = this.eColA;
 			settings.eColB = this.eColB;
 			settings.roomSpecificScript = this.roomSpecificScript;
 			settings.wetTerrain = this.wetTerrain;
-			settings.terrainLight = this.terrainLight;
-			settings.terrainStainAmount = this.terrainStainAmount;
-			settings.terrainStainBrightness = this.terrainStainBrightness;
-			settings.terrainStainHeight = this.terrainStainHeight;
-			settings.terrainWaves = this.terrainWaves;
-			settings.terrainEdgeRadius = this.terrainEdgeRadius;
-			settings.terrainGooHeight = this.terrainGooHeight;
-			settings.terrainGrain = this.terrainGrain;
-			settings.terrainDepth = this.terrainDepth;
-			settings.terrainSkyFade = this.terrainSkyFade;
-			settings.terrainPalette = this.terrainPalette;
+			// settings.terrainLight = this.terrainLight;
+			// settings.terrainStainAmount = this.terrainStainAmount;
+			// settings.terrainStainBrightness = this.terrainStainBrightness;
+			// settings.terrainStainHeight = this.terrainStainHeight;
+			// settings.terrainWaves = this.terrainWaves;
+			// settings.terrainEdgeRadius = this.terrainEdgeRadius;
+			// settings.terrainGooHeight = this.terrainGooHeight;
+			// settings.terrainGrain = this.terrainGrain;
+			// settings.terrainDepth = this.terrainDepth;
+			// settings.terrainSkyFade = this.terrainSkyFade;
+			// settings.terrainPalette = this.terrainPalette;
 			
 			return settings;
 		}
@@ -148,5 +148,14 @@ namespace Dawn {
 		}
 		
 		public Dictionary<Time, RoomSettings> timeSettings;
+		
+		public static bool EmptySettings(RoomSettings settings) {
+			if (settings is DawnRoomSettings) return false;
+			
+			return
+				settings.effects.Count == 0 &&
+				settings.terrainFadePalette == null &&
+				settings.clds == null;
+		}
 	}
 }

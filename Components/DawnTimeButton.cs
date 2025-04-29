@@ -10,7 +10,7 @@ namespace Dawn.Components {
 		}
 		
 		public override bool Active() {
-			return DawnDevTools.dawnDevToolsActive && DawnDevTools.currentTime == time;
+			return DawnDevTools.currentTime == time;
 		}
 	}
 }
