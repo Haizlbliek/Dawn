@@ -103,6 +103,8 @@ namespace Dawn {
 			bool result = false;
 
 			string path = self.filePath;
+			if (path == null) return false;
+			
 			foreach (KeyValuePair<Time, RoomSettings> entry in settings.timeSettings) {
 				string specialPath = path.Substring(0, path.LastIndexOf(".")) + "_dawn-" + entry.Key + ".txt"; // `xx_room_settings_dawn-DAY.txt`
 

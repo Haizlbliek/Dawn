@@ -95,46 +95,19 @@ namespace Dawn {
 		}
 		
 		public RoomSettings CopyMainTo(RoomSettings settings) {
-			// settings.effects = this.effects; NOTE: COMPLETE
-
 			settings.ambientSounds = this.ambientSounds;
 			settings.placedObjects = this.placedObjects;
 			settings.triggers = this.triggers;
 			settings.fadePalette = this.fadePalette;
-			// settings.terrainFadePalette = this.terrainFadePalette;
 
 			settings.dType = this.dType;
-			// settings.rInts = this.rInts;
-			// settings.rumInts = this.rumInts;
-			// settings.cDrips = this.cDrips;
-			// settings.wSpeed = this.wSpeed;
-			// settings.wAmp = this.wAmp;
-			// settings.wLength = this.wLength;
-			// settings.swAmp = this.swAmp;
-			// settings.swLength = this.swLength;
-			// settings.clds = this.clds;
-			// settings.grm = this.grm;
 			// settings.bkgDrnVl = this.bkgDrnVl; // NOTE: Idk
 			// settings.bkgDrnNoThreatVol = this.bkgDrnNoThreatVol; // NOTE: Idk
-			// settings.rndItmDns = this.rndItmDns;
-			// settings.rndItmSprChnc = this.rndItmSprChnc;
-			// settings.wtrRflctAlpha = this.wtrRflctAlpha;
 			settings.pal = this.pal;
 			settings.eColA = this.eColA;
 			settings.eColB = this.eColB;
 			settings.roomSpecificScript = this.roomSpecificScript;
 			settings.wetTerrain = this.wetTerrain;
-			// settings.terrainLight = this.terrainLight;
-			// settings.terrainStainAmount = this.terrainStainAmount;
-			// settings.terrainStainBrightness = this.terrainStainBrightness;
-			// settings.terrainStainHeight = this.terrainStainHeight;
-			// settings.terrainWaves = this.terrainWaves;
-			// settings.terrainEdgeRadius = this.terrainEdgeRadius;
-			// settings.terrainGooHeight = this.terrainGooHeight;
-			// settings.terrainGrain = this.terrainGrain;
-			// settings.terrainDepth = this.terrainDepth;
-			// settings.terrainSkyFade = this.terrainSkyFade;
-			// settings.terrainPalette = this.terrainPalette;
 			
 			return settings;
 		}
@@ -155,7 +128,31 @@ namespace Dawn {
 			return
 				settings.effects.Count == 0 &&
 				settings.terrainFadePalette == null &&
-				settings.clds == null;
+				settings.terrainLight == null &&
+				settings.terrainLight == null &&
+				settings.terrainStainAmount == null &&
+				settings.terrainStainBrightness == null &&
+				settings.terrainStainHeight == null &&
+				settings.terrainWaves == null &&
+				settings.terrainEdgeRadius == null &&
+				settings.terrainGooHeight == null &&
+				settings.terrainGrain == null &&
+				settings.terrainDepth == null &&
+				settings.terrainSkyFade == null &&
+				settings.terrainPalette == null &&
+				settings.rInts == null &&
+				settings.rumInts == null &&
+				settings.cDrips == null &&
+				settings.wSpeed == null &&
+				settings.wAmp == null &&
+				settings.wLength == null &&
+				settings.swAmp == null &&
+				settings.swLength == null &&
+				settings.clds == null &&
+				settings.grm == null &&
+				settings.rndItmDns == null &&
+				settings.rndItmSprChnc == null &&
+				settings.wtrRflctAlpha == null;
 		}
 	}
 }
