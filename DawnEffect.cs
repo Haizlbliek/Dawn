@@ -1,8 +1,8 @@
-using UnityEngine;
-using RWCustom;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using DevInterface;
+using RWCustom;
+using UnityEngine;
 
 namespace Dawn {
     class DawnObject : PlacedObject {
@@ -69,12 +69,11 @@ namespace Dawn {
 		}
 
 		protected string BaseSaveString() {
-			return string.Format(CultureInfo.InvariantCulture, "{0}~{1}~{2}", new object[]
-			{
+			return string.Format(CultureInfo.InvariantCulture, "{0}~{1}~{2}", [
 				this.panelPos.x,
 				this.panelPos.y,
 				this.dawnPalette
-			});
+			]);
 		}
         
 		public override string ToString() {

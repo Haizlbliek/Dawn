@@ -1,10 +1,9 @@
-using BepInEx;
-using UnityEngine;
-using RWCustom;
-using DevInterface;
 using System.Security.Permissions;
+using BepInEx;
+using DevInterface;
 using MoreSlugcats;
-using Microsoft.Win32;
+using RWCustom;
+using UnityEngine;
 
 #pragma warning disable CS0618
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
@@ -281,7 +280,7 @@ namespace Dawn {
 
 		private RoomSettingsPage.DevEffectsCategories On_DevInterface_RoomSettingsPage_DevEffectGetCategoryFromEffectType(On.DevInterface.RoomSettingsPage.orig_DevEffectGetCategoryFromEffectType orig, RoomSettingsPage self, RoomSettings.RoomEffect.Type type) {
 			if (type == DawnEnums.DawnEffect) {
-				return RoomSettingsPage.DevEffectsCategories.Decorations;
+				return RoomSettingsPage.DevEffectsCategories.Gameplay;
 			}
 
 			return orig(self, type);

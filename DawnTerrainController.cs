@@ -107,7 +107,11 @@ namespace Dawn {
 				fadePalette = null;
 			}
 			
-			fade = timeSettings.terrainFadePalette?.fades[Dawn.instance.currentCameraPosition] ?? 0.0f;
+			if (timeSettings.terrainFadePalette?.fades?.Length <= Dawn.instance.currentCameraPosition) {
+				fade = 0.0f;
+			} else {
+				fade = timeSettings.terrainFadePalette?.fades[Dawn.instance.currentCameraPosition] ?? 0.0f;
+			}
 		}
 
 		private static void On_TerrainPalette_UpdateFade(On.TerrainPalette.orig_UpdateFade orig, TerrainPalette self, float fade, float mushroom, float rain, float echo) {
@@ -133,24 +137,28 @@ namespace Dawn {
 				paletteBMain ??= testSand;
 			}
 
+			// Dawn.instance.Log("Palettes: A = " + (paletteAMain?.name ?? "null") + "-" + (paletteAFade?.name ?? "null") + "; B = " + (paletteBMain?.name ?? "null") + "-" + (paletteBFade?.name ?? "null"));
+
 			if (Dawn.instance.lerpAmount <= 0.01f || (paletteAMain?.name == paletteBMain?.name && paletteAFade?.name == paletteBFade?.name)) {
+				// Dawn.instance.Log("A");
 				self.texturePixels = new Color[(paletteAMain?.PaletteSize.x * paletteAMain?.PaletteSize.y) ?? 0];
 				self.fadePixels    = new Color[(paletteAFade?.PaletteSize.x * paletteAFade?.PaletteSize.y) ?? 0];
 
 				LerpBetween(paletteAMain, paletteAFade, self.texturePixels, self.fadePixels, fadeA, rain, echo);
 			} else if (Dawn.instance.lerpAmount >= 0.99f) {
+				// Dawn.instance.Log("B");
 				self.texturePixels = new Color[(paletteBMain?.PaletteSize.x * paletteBMain?.PaletteSize.y) ?? 0];
 				self.fadePixels    = new Color[(paletteBFade?.PaletteSize.x * paletteBFade?.PaletteSize.y) ?? 0];
 
 				LerpBetween(paletteBMain, paletteBFade, self.texturePixels, self.fadePixels, fadeB, rain, echo);
 			} else {
-				Color[] tempPixels = new Color[(paletteBFade?.PaletteSize.x * paletteBFade?.PaletteSize.y) ?? 0];
-
+				// Dawn.instance.Log("C - " + Dawn.instance.lerpAmount);
 				self.texturePixels = new Color[(paletteAMain?.PaletteSize.x * paletteAMain?.PaletteSize.y) ?? 0];
 				self.fadePixels    = new Color[(paletteAFade?.PaletteSize.x * paletteAFade?.PaletteSize.y) ?? 0];
 				LerpBetween(paletteAMain, paletteAFade, self.texturePixels, self.fadePixels, fadeA, rain, echo);
 
 				self.fadePixels    = new Color[(paletteBMain?.PaletteSize.x * paletteBMain?.PaletteSize.y) ?? 0];
+				Color[] tempPixels = new Color[(paletteBFade?.PaletteSize.x * paletteBFade?.PaletteSize.y) ?? 0];
 				LerpBetween(paletteBMain, paletteBFade, self.fadePixels, tempPixels, fadeB, rain, echo);
 				
 				TerrainPalette.LerpColors(self.texturePixels, self.fadePixels, Dawn.instance.lerpAmount);
@@ -163,8 +171,7 @@ namespace Dawn {
 			self.LightTint = self.texturePixels[1];
 			self.DarkDustColor = self.texturePixels[2];
 			self.LightDustColor = self.texturePixels[3];
-			self.SandstormColor = new Color?(self.texturePixels[4]);
-
+			self.SandstormColor = self.texturePixels[4];
 			if (self.SandstormColor == Color.black) {
 				self.SandstormColor = null;
 			}
@@ -172,16 +179,16 @@ namespace Dawn {
 			RoomSettings time_ = settings.GetTimeSetting(Time.NONE);
 			RoomSettings timeA = settings.GetTimeSetting(Dawn.instance.timeLerpA);
 			RoomSettings timeB = settings.GetTimeSetting(Dawn.instance.timeLerpB);
-			settings.terrainLight           = Mathf.Lerp(timeA.terrainLight           ?? time_.terrainLight           ?? 0.0f, timeB.terrainLight           ?? time_.terrainLight           ?? 0.0f, Dawn.instance.lerpAmount);
-			settings.terrainStainAmount     = Mathf.Lerp(timeA.terrainStainAmount     ?? time_.terrainStainAmount     ?? 0.0f, timeB.terrainStainAmount     ?? time_.terrainStainAmount     ?? 0.0f, Dawn.instance.lerpAmount);
-			settings.terrainStainBrightness = Mathf.Lerp(timeA.terrainStainBrightness ?? time_.terrainStainBrightness ?? 0.0f, timeB.terrainStainBrightness ?? time_.terrainStainBrightness ?? 0.0f, Dawn.instance.lerpAmount);
-			settings.terrainStainHeight     = Mathf.Lerp(timeA.terrainStainHeight     ?? time_.terrainStainHeight     ?? 0.0f, timeB.terrainStainHeight     ?? time_.terrainStainHeight     ?? 0.0f, Dawn.instance.lerpAmount);
-			settings.terrainWaves           = Mathf.Lerp(timeA.terrainWaves           ?? time_.terrainWaves           ?? 0.0f, timeB.terrainWaves           ?? time_.terrainWaves           ?? 0.0f, Dawn.instance.lerpAmount);
-			settings.terrainEdgeRadius      = Mathf.Lerp(timeA.terrainEdgeRadius      ?? time_.terrainEdgeRadius      ?? 0.0f, timeB.terrainEdgeRadius      ?? time_.terrainEdgeRadius      ?? 0.0f, Dawn.instance.lerpAmount);
-			settings.terrainGooHeight       = Mathf.Lerp(timeA.terrainGooHeight       ?? time_.terrainGooHeight       ?? 0.0f, timeB.terrainGooHeight       ?? time_.terrainGooHeight       ?? 0.0f, Dawn.instance.lerpAmount);
-			settings.terrainGrain           = Mathf.Lerp(timeA.terrainGrain           ?? time_.terrainGrain           ?? 0.0f, timeB.terrainGrain           ?? time_.terrainGrain           ?? 0.0f, Dawn.instance.lerpAmount);
-			settings.terrainDepth           = Mathf.Lerp(timeA.terrainDepth           ?? time_.terrainDepth           ?? 0.0f, timeB.terrainDepth           ?? time_.terrainDepth           ?? 0.0f, Dawn.instance.lerpAmount);
-			settings.terrainSkyFade         = Mathf.Lerp(timeA.terrainSkyFade         ?? time_.terrainSkyFade         ?? 0.0f, timeB.terrainSkyFade         ?? time_.terrainSkyFade         ?? 0.0f, Dawn.instance.lerpAmount);
+			settings.terrainLight           = Mathf.Lerp(timeA.terrainLight           ?? time_.terrainLight           ?? DefaultRoomSettings.ancestor.TerrainLight,           timeB.terrainLight           ?? time_.terrainLight           ?? DefaultRoomSettings.ancestor.TerrainLight,           Dawn.instance.lerpAmount);
+			settings.terrainStainAmount     = Mathf.Lerp(timeA.terrainStainAmount     ?? time_.terrainStainAmount     ?? DefaultRoomSettings.ancestor.TerrainStainAmount,     timeB.terrainStainAmount     ?? time_.terrainStainAmount     ?? DefaultRoomSettings.ancestor.TerrainStainAmount,     Dawn.instance.lerpAmount);
+			settings.terrainStainBrightness = Mathf.Lerp(timeA.terrainStainBrightness ?? time_.terrainStainBrightness ?? DefaultRoomSettings.ancestor.TerrainStainBrightness, timeB.terrainStainBrightness ?? time_.terrainStainBrightness ?? DefaultRoomSettings.ancestor.TerrainStainBrightness, Dawn.instance.lerpAmount);
+			settings.terrainStainHeight     = Mathf.Lerp(timeA.terrainStainHeight     ?? time_.terrainStainHeight     ?? DefaultRoomSettings.ancestor.TerrainStainHeight,     timeB.terrainStainHeight     ?? time_.terrainStainHeight     ?? DefaultRoomSettings.ancestor.TerrainStainHeight,     Dawn.instance.lerpAmount);
+			settings.terrainGooHeight       = Mathf.Lerp(timeA.terrainGooHeight       ?? time_.terrainGooHeight       ?? DefaultRoomSettings.ancestor.TerrainGooHeight,       timeB.terrainGooHeight       ?? time_.terrainGooHeight       ?? DefaultRoomSettings.ancestor.TerrainGooHeight,       Dawn.instance.lerpAmount);
+			settings.terrainGrain           = Mathf.Lerp(timeA.terrainGrain           ?? time_.terrainGrain           ?? DefaultRoomSettings.ancestor.TerrainGrain,           timeB.terrainGrain           ?? time_.terrainGrain           ?? DefaultRoomSettings.ancestor.TerrainGrain,           Dawn.instance.lerpAmount);
+			settings.terrainEdgeRadius      = Mathf.Lerp(timeA.terrainEdgeRadius      ?? time_.terrainEdgeRadius      ?? DefaultRoomSettings.ancestor.TerrainEdgeRadius,      timeB.terrainEdgeRadius      ?? time_.terrainEdgeRadius      ?? DefaultRoomSettings.ancestor.TerrainEdgeRadius,      Dawn.instance.lerpAmount);
+			settings.terrainWaves           = Mathf.Lerp(timeA.terrainWaves           ?? time_.terrainWaves           ?? DefaultRoomSettings.ancestor.TerrainWaves,           timeB.terrainWaves           ?? time_.terrainWaves           ?? DefaultRoomSettings.ancestor.TerrainWaves,           Dawn.instance.lerpAmount);
+			settings.terrainDepth           = Mathf.Lerp(timeA.terrainDepth           ?? time_.terrainDepth           ?? DefaultRoomSettings.ancestor.TerrainDepth,           timeB.terrainDepth           ?? time_.terrainDepth           ?? DefaultRoomSettings.ancestor.TerrainDepth,           Dawn.instance.lerpAmount);
+			settings.terrainSkyFade         = Mathf.Lerp(timeA.terrainSkyFade         ?? time_.terrainSkyFade         ?? DefaultRoomSettings.ancestor.TerrainSkyFade,         timeB.terrainSkyFade         ?? time_.terrainSkyFade         ?? DefaultRoomSettings.ancestor.TerrainSkyFade,         Dawn.instance.lerpAmount);
 		}
 	}
 }

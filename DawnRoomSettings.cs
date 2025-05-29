@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Microsoft.Win32;
 
 namespace Dawn {
 	class DawnRoomSettings : RoomSettings {
@@ -51,13 +50,10 @@ namespace Dawn {
 			
 			this.timeSettings = [];
 			foreach (string time in Time.values.entries) {
-				RoomSettings timeSetting;
-				if (time == "NONE") {
-					timeSetting = settings;
-				} else {
-					timeSetting = new RoomSettings(null, "roottemplate", null, false, false, null, null);
-				}
+				RoomSettings timeSetting = (time == "NONE") ? settings : new RoomSettings(null, "roottemplate", null, false, false, null, null);
+
 				timeSetting.parent = DefaultRoomSettings.ancestor;
+
 				timeSettings.Add(new Time(time, false), timeSetting);
 			}
 
