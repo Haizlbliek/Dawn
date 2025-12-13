@@ -291,7 +291,7 @@ public class Plugin : BaseUnityPlugin {
 	}
 
 	private RoomSettingsPage.DevEffectsCategories On_DevInterface_RoomSettingsPage_DevEffectGetCategoryFromEffectType(On.DevInterface.RoomSettingsPage.orig_DevEffectGetCategoryFromEffectType orig, RoomSettingsPage self, RoomSettings.RoomEffect.Type type) {
-		if (type == DawnEnums.DawnEffect) {
+		if (type == DawnEnums.Dawn) {
 			return RoomSettingsPage.DevEffectsCategories.Gameplay;
 		}
 
@@ -299,11 +299,8 @@ public class Plugin : BaseUnityPlugin {
 	}
 
 	private ObjectsPage.DevObjectCategories On_DevInterface_ObjectsPage_DevObjectGetCategoryFromPlacedType(On.DevInterface.ObjectsPage.orig_DevObjectGetCategoryFromPlacedType orig, ObjectsPage self, PlacedObject.Type type) {
-		if (type == DawnEnums.DawnObject) {
-			return ObjectsPage.DevObjectCategories.Gameplay;
-		}
-
 		if (
+			type == DawnEnums.DawnData ||
 			type == DawnEnums.HalfDuskEffectColours ||
 			type == DawnEnums.DuskEffectColours ||
 			type == DawnEnums.NightEffectColours ||
@@ -330,7 +327,7 @@ public class Plugin : BaseUnityPlugin {
 
 		PlacedObjectRepresentation placedObjectRepresentation = null;
 
-		if (tp == DawnEnums.DawnObject) {
+		if (tp == DawnEnums.DawnData) {
 			placedObjectRepresentation = new DawnObjectRepresentation(self.owner, tp.ToString() + "_Rep", self, pObj, tp.ToString());
 		}
 		else if (
@@ -353,7 +350,7 @@ public class Plugin : BaseUnityPlugin {
 	}
 
 	public void On_PlacedObject_GenerateEmptyData(On.PlacedObject.orig_GenerateEmptyData orig, PlacedObject self) {
-		if (self.type == DawnEnums.DawnObject) {
+		if (self.type == DawnEnums.DawnData) {
 			self.data = new DawnObjectData(self);
 			return;
 		}
@@ -384,12 +381,10 @@ public class Plugin : BaseUnityPlugin {
 		this.timeLerpB = Time.HalfDusk;
 		this.lerpAmount = 0.0f;
 
-		float effect_dawn = self.room.roomSettings.GetEffectAmount(DawnEnums.DawnEffect) * 0.99f;
+		float effect_dawn = self.room.roomSettings.GetEffectAmount(DawnEnums.Dawn) * 0.99f;
 		DawnRainCycle dawnRainCycle = self.room.world.rainCycle as DawnRainCycle;
 
-		if (dawnRainCycle != null) {
-			dawnRainCycle.inRoomWithDawn = effect_dawn > 0.0f;
-		}
+		dawnRainCycle?.inRoomWithDawn = effect_dawn > 0.0f;
 
 		if (effect_dawn > 0f && self.room.world.rainCycle.timer >= self.room.world.rainCycle.cycleLength) {
 			float num = 1320f;
@@ -408,7 +403,7 @@ public class Plugin : BaseUnityPlugin {
 			}
 
 			foreach (PlacedObject placedObject in self.room.roomSettings.placedObjects) {
-				if (placedObject.type == DawnEnums.DawnObject) {
+				if (placedObject.type == DawnEnums.DawnData) {
 					dawnPalette = (placedObject.data as DawnObjectData).dawnPalette;
 				}
 				else if (placedObject.type == DawnEnums.HalfDuskEffectColours) {
