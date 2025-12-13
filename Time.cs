@@ -1,7 +1,7 @@
 namespace Dawn {
 	public class Time : ExtEnum<Time> {
-		public Time(string value, bool register = false) : base(value, register) {}
-		
+		public Time(string value, bool register = false) : base(value, register) { }
+
 		public static readonly Time NONE = new Time("NONE", true);
 
 		public static readonly Time Day = new Time("Day", true);

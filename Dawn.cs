@@ -298,7 +298,7 @@ public class Plugin : BaseUnityPlugin {
 		return orig(self, type);
 	}
 
-	private ObjectsPage.DevObjectCategories On_DevInterface_ObjectsPage_DevObjectGetCategoryFromPlacedType(On.DevInterface.ObjectsPage.orig_DevObjectGetCategoryFromPlacedType orig, DevInterface.ObjectsPage self, PlacedObject.Type type) {
+	private ObjectsPage.DevObjectCategories On_DevInterface_ObjectsPage_DevObjectGetCategoryFromPlacedType(On.DevInterface.ObjectsPage.orig_DevObjectGetCategoryFromPlacedType orig, ObjectsPage self, PlacedObject.Type type) {
 		if (type == DawnEnums.DawnObject) {
 			return ObjectsPage.DevObjectCategories.Gameplay;
 		}
@@ -316,10 +316,12 @@ public class Plugin : BaseUnityPlugin {
 		return orig(self, type);
 	}
 
-	private void On_DevInterface_ObjectsPage_CreateObjRep(On.DevInterface.ObjectsPage.orig_CreateObjRep orig, DevInterface.ObjectsPage self, PlacedObject.Type tp, PlacedObject pObj) {
+	private void On_DevInterface_ObjectsPage_CreateObjRep(On.DevInterface.ObjectsPage.orig_CreateObjRep orig, ObjectsPage self, PlacedObject.Type tp, PlacedObject pObj) {
 		if (pObj == null) {
-			pObj = new PlacedObject(tp, null);
-			pObj.pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new Vector2(-683f, 384f), 0.25f) + Custom.DegToVec(UnityEngine.Random.value * 360f) * 0.2f;
+			pObj = new PlacedObject(tp, null) {
+				pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new Vector2(-683f, 384f), 0.25f) + Custom.DegToVec(UnityEngine.Random.value * 360f) * 0.2f
+			};
+
 			self.RoomSettings.placedObjects.Add(pObj);
 			if (tp == PlacedObject.Type.LightFixture) {
 				(pObj.data as PlacedObject.LightFixtureData).type = self.lastPlacedLightFixture;

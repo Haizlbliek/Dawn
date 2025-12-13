@@ -12,7 +12,7 @@ namespace Dawn {
 			}
 		}
 
-		private RainCycle rainCycle => (this.hud.owner as Player)?.room?.world?.rainCycle ?? (this.hud.owner as Player)?.abstractCreature?.world?.rainCycle;
+		private RainCycle RainCycle => (this.hud.owner as Player)?.room?.world?.rainCycle ?? (this.hud.owner as Player)?.abstractCreature?.world?.rainCycle;
 
 		public Vector2 pos;
 		public Vector2 lastPos;
@@ -29,13 +29,13 @@ namespace Dawn {
 
 		public DawnRainMeter(HUD.HUD hud, FContainer fContainer) : base(hud) {
 			this.lastPos = this.pos;
-			int num = Math.Min((this.rainCycle as DawnRainCycle).nextCycleLength / 1200, 30);
+			int num = Math.Min((this.RainCycle as DawnRainCycle).nextCycleLength / 1200, 30);
 
 			this.circles = new HUDCircle[num];
 			for (int i = 0; i < this.circles.Length; i++) {
-				this.circles[i] = new HUDCircle(hud, HUDCircle.SnapToGraphic.smallEmptyCircle, fContainer, 3);
-
-				this.circles[i].forceColor = new Color(0.26f, 0.58f, 0.80f);
+				this.circles[i] = new HUDCircle(hud, HUDCircle.SnapToGraphic.smallEmptyCircle, fContainer, 3) {
+					forceColor = new Color(0.26f, 0.58f, 0.80f)
+				};
 			}
 
 			if (ModManager.MSC && (hud.owner as Player).SlugCatClass == MoreSlugcatsEnums.SlugcatStatsName.Saint && hud.map.RegionName != "HR") {
@@ -44,7 +44,7 @@ namespace Dawn {
 		}
 
 		public override void Update() {
-			if (this.rainCycle == null)
+			if (this.RainCycle == null)
 				return;
 
 			bool flag = (this.hud.owner as Player).room != null && (this.hud.owner as Player).room.game.setupValues.disableRain;
@@ -58,7 +58,7 @@ namespace Dawn {
 
 			this.lastPos = this.pos;
 			this.pos = this.hud.karmaMeter.pos;
-			if (!this.halfTimeShown && !flag && (this.hud.owner as Player).room != null && this.rainCycle.AmountLeft < 0.5f && (this.hud.owner as Player).room.roomSettings.DangerType != RoomRain.DangerType.None && (!ModManager.MMF || !(this.hud.owner as Player).room.world.rainCycle.RegionHidesTimer)) {
+			if (!this.halfTimeShown && !flag && (this.hud.owner as Player).room != null && this.RainCycle.AmountLeft < 0.5f && (this.hud.owner as Player).room.roomSettings.DangerType != RoomRain.DangerType.None && (!ModManager.MMF || !(this.hud.owner as Player).room.world.rainCycle.RegionHidesTimer)) {
 				this.halfTimeBlink = 220;
 				this.halfTimeShown = true;
 			}
@@ -78,7 +78,7 @@ namespace Dawn {
 			}
 			if ((this.hud.karmaMeter.fade > 0f && this.Show) || this.remainVisibleCounter > 0) {
 				this.fade = Mathf.Min(1f, this.fade + 0.033333335f);
-				if (ModManager.MMF && MMF.cfgTickTock.Value && (this.hud.owner as Player).room != null && this.hud.owner.RevealMap && (this.rainCycle as DawnRainCycle).dayNightCounter > 0f && !(this.hud.owner as Player).room.world.rainCycle.RegionHidesTimer) {
+				if (ModManager.MMF && MMF.cfgTickTock.Value && (this.hud.owner as Player).room != null && this.hud.owner.RevealMap && (this.RainCycle as DawnRainCycle).dayNightCounter > 0f && !(this.hud.owner as Player).room.world.rainCycle.RegionHidesTimer) {
 					this.tickCounter++;
 					if (this.tickCounter % 240 == 0) {
 						(this.hud.owner as Player).room.PlaySound(SoundID.MENU_Checkbox_Check, 0f, 0.85f, 0.75f * UnityEngine.Random.Range(0.8f, 1.2f));
@@ -108,10 +108,10 @@ namespace Dawn {
 				this.fRain = 0f;
 			}
 			else if ((this.hud.owner as Player).room != null) {
-				this.fRain = 1.0f - (this.hud.owner as Player).room.world.rainCycle.dayNightCounter / (1320f * (3.92f + (this.rainCycle as DawnRainCycle).GetNightLengthRatio()));
+				this.fRain = 1.0f - (this.hud.owner as Player).room.world.rainCycle.dayNightCounter / (1320f * (3.92f + (this.RainCycle as DawnRainCycle).GetNightLengthRatio()));
 			}
 
-			bool flag2 = ModManager.MMF && MMF.cfgHideRainMeterNoThreat.Value && (this.hud.owner as Player).room != null && this.rainCycle.RegionHidesTimer;
+			bool flag2 = ModManager.MMF && MMF.cfgHideRainMeterNoThreat.Value && (this.hud.owner as Player).room != null && this.RainCycle.RegionHidesTimer;
 			for (int i = 0; i < this.circles.Length; i++) {
 				this.circles[i].Update();
 				if (this.fade > 0f || this.lastFade > 0f) {
@@ -151,7 +151,7 @@ namespace Dawn {
 				}
 			}
 
-			if ((this.rainCycle as DawnRainCycle).dayNightCounter <= 0 || !(this.rainCycle as DawnRainCycle).inRoomWithDawn) {
+			if ((this.RainCycle as DawnRainCycle).dayNightCounter <= 0 || !(this.RainCycle as DawnRainCycle).inRoomWithDawn) {
 				this.fade = 0f;
 				for (int i = 0; i < this.circles.Length; i++) {
 					this.circles[i].rad = 0f;

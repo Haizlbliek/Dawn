@@ -67,8 +67,8 @@ namespace Dawn {
 		}
 
 		public void SetAll() {
-			List<RoomSettings.RoomEffect.Type> types = [];
-			List<RoomSettings.RoomEffect.Type> selfHas = [];
+			List<RoomEffect.Type> types = [];
+			List<RoomEffect.Type> selfHas = [];
 
 			foreach (KeyValuePair<Time, RoomSettings> entry in this.timeSettings) {
 				if (entry.Key == Time.NONE) {

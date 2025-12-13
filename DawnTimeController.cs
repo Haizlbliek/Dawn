@@ -20,13 +20,11 @@ namespace Dawn {
 				GetOr(settings.GetTimeSetting(Time.Dusk), type, defaultValue, Plugin.instance.fadeBlendDusk) +
 				GetOr(settings.GetTimeSetting(Time.Night), type, defaultValue, Plugin.instance.fadeBlendNight) +
 				GetOr(settings.GetTimeSetting(Time.Dawn), type, defaultValue, Plugin.instance.fadeBlendDawn) +
-				GetOr(settings.GetTimeSetting(Time.HalfDawn), type, defaultValue, Plugin.instance.fadeBlendHalfDawn)
-			;
+				GetOr(settings.GetTimeSetting(Time.HalfDawn), type, defaultValue, Plugin.instance.fadeBlendHalfDawn);
 		}
 
 		static public void ApplyRoomSettings(Room room) {
-			DawnRoomSettings settings = room.roomSettings as DawnRoomSettings;
-			if (settings == null)
+			if (room.roomSettings is not DawnRoomSettings settings)
 				return;
 
 			foreach (RoomSettings.RoomEffect effect in settings.effects) {

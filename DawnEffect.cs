@@ -11,10 +11,10 @@ namespace Dawn {
 		}
 	}
 
-	class DawnObjectRepresentation : DevInterface.PlacedObjectRepresentation {
+	class DawnObjectRepresentation : PlacedObjectRepresentation {
 		public DawnObjectRepresentation(DevUI owner, string IDstring, DevUINode parentNode, PlacedObject pObj, string name) : base(owner, IDstring, parentNode, pObj, name) {
-			this.subNodes.Add(new DawnObjectRepresentation.DawnControlPanel(owner, "Dawn_Control_Panel", this, new Vector2(10f, 10f)));
-			(this.subNodes[this.subNodes.Count - 1] as DawnObjectRepresentation.DawnControlPanel).pos = (pObj.data as DawnObjectData).panelPos;
+			this.subNodes.Add(new DawnControlPanel(owner, "Dawn_Control_Panel", this, new Vector2(10f, 10f)));
+			(this.subNodes[this.subNodes.Count - 1] as DawnControlPanel).pos = (pObj.data as DawnObjectData).panelPos;
 
 			// (pObj.data as DawnObjectData).Apply(owner.room);
 		}
@@ -26,7 +26,7 @@ namespace Dawn {
 
 		public class DawnControlPanel : Panel, IDevUISignals {
 			public DawnControlPanel(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos) : base(owner, IDstring, parentNode, pos, new Vector2(200f, 20f), "Dawn Settings") {
-				this.subNodes.Add(new DawnObjectRepresentation.DawnControlPanel.PaletteController(owner, "Palette", this, new Vector2(5f, 5f), "Dawn Palette : "));
+				this.subNodes.Add(new PaletteController(owner, "Palette", this, new Vector2(5f, 5f), "Dawn Palette : "));
 			}
 
 			public override void Move(Vector2 newPos) {

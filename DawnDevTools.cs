@@ -134,8 +134,7 @@ namespace Dawn {
 		private void On_RoomSettings_Save(On.RoomSettings.orig_Save_string_bool orig, RoomSettings self, string path, bool saveAsTemplate) {
 			orig(self, path, saveAsTemplate);
 
-			DawnRoomSettings settings = self as DawnRoomSettings;
-			if (settings == null)
+			if (self is not DawnRoomSettings settings)
 				return;
 
 			Dictionary<Time, RoomSettings> newSettings = [];
@@ -220,7 +219,7 @@ namespace Dawn {
 			this.ApplyDawnSignals((self, type, sender, message) => orig((RoomSettingsPage) self, type, sender, message), self, type, sender, message);
 		}
 
-		private void On_Page_ctor(On.DevInterface.Page.orig_ctor orig, DevInterface.Page self, DevInterface.DevUI owner, string IDstring, DevInterface.DevUINode parentNode, string name) {
+		private void On_Page_ctor(On.DevInterface.Page.orig_ctor orig, Page self, DevUI owner, string IDstring, DevUINode parentNode, string name) {
 			orig(self, owner, IDstring, parentNode, name);
 
 			if (self is not DevInterface.RoomSettingsPage)
