@@ -114,9 +114,9 @@ namespace Dawn {
 			}
 		}
 
-		private static void On_TerrainPalette_UpdateFade(On.TerrainPalette.orig_UpdateFade orig, TerrainPalette self, float fade, float mushroom, float rain, float echo) {
+		private static void On_TerrainPalette_UpdateFade(On.TerrainPalette.orig_UpdateFade orig, TerrainPalette self, float fade, float mushroom, float rain, float echo, float rot) {
 			if (Dawn.instance.currentRoom.roomSettings is not DawnRoomSettings settings) {
-				orig(self, fade, mushroom, rain, echo);
+				orig(self, fade, mushroom, rain, echo, rot);
 				return;
 			}
 			

@@ -20,13 +20,13 @@ namespace Dawn {
             float minutes;
 
             if (world.game.GetStorySession.characterStats.name == SlugcatStats.Name.Yellow || (ModManager.MSC && (world.game.GetStorySession.characterStats.name == MoreSlugcats.MoreSlugcatsEnums.SlugcatStatsName.Rivulet || world.game.GetStorySession.characterStats.name == MoreSlugcats.MoreSlugcatsEnums.SlugcatStatsName.Gourmand || world.game.GetStorySession.characterStats.name == MoreSlugcats.MoreSlugcatsEnums.SlugcatStatsName.Saint))) {
-                minutes = Mathf.Lerp((float)world.game.rainWorld.setup.cycleTimeMin, (float)world.game.rainWorld.setup.cycleTimeMax, 0.35f + 0.65f * Mathf.Pow(UnityEngine.Random.value, 1.2f)) / 60f;
+                minutes = Mathf.Lerp(world.game.rainWorld.setup.cycleTimeMin, world.game.rainWorld.setup.cycleTimeMax, 0.35f + 0.65f * Mathf.Pow(UnityEngine.Random.value, 1.2f)) / 60f;
             } else {
-                minutes = Mathf.Lerp((float)world.game.rainWorld.setup.cycleTimeMin, (float)world.game.rainWorld.setup.cycleTimeMax, UnityEngine.Random.value) / 60f;
+                minutes = Mathf.Lerp(world.game.rainWorld.setup.cycleTimeMin, world.game.rainWorld.setup.cycleTimeMax, UnityEngine.Random.value) / 60f;
             }
 
             if (ModManager.MMF && MoreSlugcats.MMF.cfgNoRandomCycles.Value) {
-                minutes = (float)world.game.rainWorld.setup.cycleTimeMax / 60f;
+                minutes = world.game.rainWorld.setup.cycleTimeMax / 60f;
             }
 
             return (int) (minutes * 40f * 60f);
@@ -38,7 +38,7 @@ namespace Dawn {
             this.dayNightCounter = 0;
 			this.timer = 0;
             this.rainbowSeed = UnityEngine.Random.Range(0, 10000);
-            this.sunDownStartTime = (int)Mathf.Lerp((float)this.baseCycleLength, (float)this.world.game.rainWorld.setup.cycleTimeMax * 60f, UnityEngine.Random.Range(0.02f, 0.045f));
+            this.sunDownStartTime = (int)Mathf.Lerp(baseCycleLength, world.game.rainWorld.setup.cycleTimeMax * 60f, UnityEngine.Random.Range(0.02f, 0.045f));
             this.maxPreTimer = 0;
             this.preTimer = this.maxPreTimer;
             this.world.game.GetStorySession.saveState.cycleNumber += 1;

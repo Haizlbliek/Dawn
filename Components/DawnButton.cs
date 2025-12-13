@@ -25,7 +25,7 @@ namespace Dawn.Components {
 				this.colorB = NIGHT_HOVER_COLOR;
 			} else {
 				this.colorA = NIGHT_TEXT_COLOR;
-				this.colorB = Color.white;
+				this.colorB = new Color(0.9f, 0.9f, 1.0f);
 			}
 		}
 		
@@ -59,6 +59,7 @@ namespace Dawn.Components {
 				ColorNight();
 			}
 
+			this.overrideTextColor = this.colorB;
 			base.Update();
 		}
 	}

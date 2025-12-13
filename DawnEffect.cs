@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using DevInterface;
@@ -84,9 +85,12 @@ namespace Dawn {
 
 		public override void FromString(string s) {
 			string[] array = Regex.Split(s, "~");
-			this.panelPos.x = float.Parse(array[0], NumberStyles.Any, CultureInfo.InvariantCulture);
-			this.panelPos.y = float.Parse(array[1], NumberStyles.Any, CultureInfo.InvariantCulture);
-			this.dawnPalette = int.Parse(array[2], NumberStyles.Any, CultureInfo.InvariantCulture);
+			try {
+				this.panelPos.x = float.Parse(array[0], NumberStyles.Any, CultureInfo.InvariantCulture);
+				this.panelPos.y = float.Parse(array[1], NumberStyles.Any, CultureInfo.InvariantCulture);
+				this.dawnPalette = int.Parse(array[2], NumberStyles.Any, CultureInfo.InvariantCulture);
+			} catch (Exception) {
+			}
 			this.unrecognizedAttributes = SaveUtils.PopulateUnrecognizedStringAttrs(array, 4);
 		}
         
