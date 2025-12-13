@@ -47,49 +47,51 @@ namespace Dawn {
 			this.terrainDepth = settings.terrainDepth;
 			this.terrainSkyFade = settings.terrainSkyFade;
 			this.terrainPalette = settings.terrainPalette;
-			
+
 			this.timeSettings = [];
 			foreach (string time in Time.values.entries) {
 				RoomSettings timeSetting = (time == "NONE") ? settings : new RoomSettings(null, "roottemplate", null, false, false, null, null);
 
 				timeSetting.parent = DefaultRoomSettings.ancestor;
 
-				timeSettings.Add(new Time(time, false), timeSetting);
+				this.timeSettings.Add(new Time(time, false), timeSetting);
 			}
 
 			if (!this.Load(this.game?.TimelinePoint)) {
-				string text2 = WorldLoader.FindRoomFile(name, false, ".txt", true);
+				string text2 = WorldLoader.FindRoomFile(this.name, false, ".txt", true);
 				if (text2 != null) {
 					this.filePath = text2.Substring(0, text2.Length - 4) + "_settings.txt";
 					this.Load((SlugcatStats.Timeline) null);
 				}
 			}
 		}
-		
+
 		public void SetAll() {
-			List<RoomSettings.RoomEffect.Type> types = [ ];
-			List<RoomSettings.RoomEffect.Type> selfHas = [ ];
-			
-			foreach (KeyValuePair<Time, RoomSettings> entry in timeSettings) {
+			List<RoomSettings.RoomEffect.Type> types = [];
+			List<RoomSettings.RoomEffect.Type> selfHas = [];
+
+			foreach (KeyValuePair<Time, RoomSettings> entry in this.timeSettings) {
 				if (entry.Key == Time.NONE) {
 					foreach (RoomEffect effect in entry.Value.effects) {
 						types.Add(effect.type);
 						selfHas.Add(effect.type);
 					}
-				} else {
+				}
+				else {
 					foreach (RoomEffect effect in entry.Value.effects) {
 						types.Add(effect.type);
 					}
 				}
 			}
-			
+
 			foreach (RoomEffect.Type type in types) {
-				if (selfHas.Contains(type)) continue;
-				
-				effects.Add(new RoomEffect(type, 0.0f, false));
+				if (selfHas.Contains(type))
+					continue;
+
+				this.effects.Add(new RoomEffect(type, 0.0f, false));
 			}
 		}
-		
+
 		public RoomSettings CopyMainTo(RoomSettings settings) {
 			settings.ambientSounds = this.ambientSounds;
 			settings.placedObjects = this.placedObjects;
@@ -104,23 +106,25 @@ namespace Dawn {
 			settings.eColB = this.eColB;
 			settings.roomSpecificScript = this.roomSpecificScript;
 			settings.wetTerrain = this.wetTerrain;
-			
+
 			return settings;
 		}
-		
+
 		public RoomSettings GetTimeSetting(Time time) {
 			try {
-				return timeSettings[time];
-			} catch (KeyNotFoundException) {
+				return this.timeSettings[time];
+			}
+			catch (KeyNotFoundException) {
 				return null;
 			}
 		}
-		
+
 		public Dictionary<Time, RoomSettings> timeSettings;
-		
+
 		public static bool EmptySettings(RoomSettings settings) {
-			if (settings is DawnRoomSettings) return false;
-			
+			if (settings is DawnRoomSettings)
+				return false;
+
 			return
 				settings.effects.Count == 0 &&
 				settings.terrainFadePalette == null &&

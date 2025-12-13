@@ -27,12 +27,12 @@ namespace Dawn {
 
 		public class CustomEffectColoursControlPanel : Panel {
 			public CustomEffectColoursControlPanel(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, string name) : base(owner, IDstring, parentNode, pos, new Vector2(250f, 105f + 15f), name) {
-				this.subNodes.Add(new PaletteController(0, ColorPart.Red,   owner, "PaletteAR", this, new Vector2(5f, 105f), "ColorA R: "));
+				this.subNodes.Add(new PaletteController(0, ColorPart.Red, owner, "PaletteAR", this, new Vector2(5f, 105f), "ColorA R: "));
 				this.subNodes.Add(new PaletteController(0, ColorPart.Green, owner, "PaletteAG", this, new Vector2(5f, 085f), "ColorA G: "));
-				this.subNodes.Add(new PaletteController(0, ColorPart.Blue,  owner, "PaletteAB", this, new Vector2(5f, 065f), "ColorA B: "));
-				this.subNodes.Add(new PaletteController(1, ColorPart.Red,   owner, "PaletteBR", this, new Vector2(5f, 045f), "ColorB R: "));
+				this.subNodes.Add(new PaletteController(0, ColorPart.Blue, owner, "PaletteAB", this, new Vector2(5f, 065f), "ColorA B: "));
+				this.subNodes.Add(new PaletteController(1, ColorPart.Red, owner, "PaletteBR", this, new Vector2(5f, 045f), "ColorB R: "));
 				this.subNodes.Add(new PaletteController(1, ColorPart.Green, owner, "PaletteBG", this, new Vector2(5f, 025f), "ColorB G: "));
-				this.subNodes.Add(new PaletteController(1, ColorPart.Blue,  owner, "PaletteBB", this, new Vector2(5f, 005f), "ColorB B: "));
+				this.subNodes.Add(new PaletteController(1, ColorPart.Blue, owner, "PaletteBB", this, new Vector2(5f, 005f), "ColorB B: "));
 			}
 
 			public override void Move(Vector2 newPos) {
@@ -50,17 +50,17 @@ namespace Dawn {
 					this.part = part;
 					this.data = (this.parentNode.parentNode as CustomEffectColours).pObj.data as CustomEffectColoursData;
 				}
-				
+
 				public override void NubDragged(float nubPos) {
-					this.data.SetValue(id, part, nubPos);
-				
+					this.data.SetValue(this.id, this.part, nubPos);
+
 					this.Refresh();
 				}
 
 				public override void Refresh() {
 					base.Refresh();
 
-					float value = this.data.GetValue(id, part);
+					float value = this.data.GetValue(this.id, this.part);
 					base.RefreshNubPos(value);
 					base.NumberText = ((int) (value * 255.0f)).ToString();
 				}
@@ -80,8 +80,8 @@ namespace Dawn {
 
 		protected string BaseSaveString() {
 			return String.Join("~", [
-                1,
-                this.panelPos.x,
+				1,
+				this.panelPos.x,
 				this.panelPos.y,
 				this.colourA.r,
 				this.colourA.g,
@@ -91,7 +91,7 @@ namespace Dawn {
 				this.colourB.b
 			]);
 		}
-		
+
 		public override string ToString() {
 			string text = this.BaseSaveString();
 			text = SaveState.SetCustomData(this, text);
@@ -104,16 +104,18 @@ namespace Dawn {
 
 			switch (version) {
 				case 0:
-					if (array.Length < 3) return;
+					if (array.Length < 3)
+						return;
 
 					this.panelPos.x = float.Parse(array[1], NumberStyles.Any, CultureInfo.InvariantCulture);
 					this.panelPos.y = float.Parse(array[2], NumberStyles.Any, CultureInfo.InvariantCulture);
 					this.colourA = Color.red;
 					this.colourB = Color.green;
 					break;
-				
+
 				case 1:
-					if (array.Length < 9) return;
+					if (array.Length < 9)
+						return;
 
 					this.panelPos.x = float.Parse(array[1], NumberStyles.Any, CultureInfo.InvariantCulture);
 					this.panelPos.y = float.Parse(array[2], NumberStyles.Any, CultureInfo.InvariantCulture);
@@ -123,52 +125,58 @@ namespace Dawn {
 					this.colourB.r = float.Parse(array[6], NumberStyles.Any, CultureInfo.InvariantCulture);
 					this.colourB.g = float.Parse(array[7], NumberStyles.Any, CultureInfo.InvariantCulture);
 					this.colourB.b = float.Parse(array[8], NumberStyles.Any, CultureInfo.InvariantCulture);
-					
+
 					break;
-				
+
 				default:
 					throw new Exception("Unknown version of CustomEffectColoursData: " + version);
 			}
 
 			this.unrecognizedAttributes = SaveUtils.PopulateUnrecognizedStringAttrs(array, 4);
 		}
-		
-		public float GetValue(int id, ColorPart part) {
-            Color v = Get(id);
-            
-            if (part == ColorPart.Red)   return v.r;
-            if (part == ColorPart.Green) return v.g;
-            if (part == ColorPart.Blue)  return v.b;
-            
-            return -1.0f;
-        }
-		
-		public void SetValue(int id, ColorPart part, float value) {
-            Color v = Get(id);
 
-            if (part == ColorPart.Red)   v.r = value;
-            if (part == ColorPart.Green) v.g = value;
-            if (part == ColorPart.Blue)  v.b = value;
-            
-            switch (id) {
-                case 0:
-                    this.colourA = v;
-                    break;
-                
-                case 1:
-                    this.colourB = v;
-                    break;
-            }
+		public float GetValue(int id, ColorPart part) {
+			Color v = this.Get(id);
+
+			if (part == ColorPart.Red)
+				return v.r;
+			if (part == ColorPart.Green)
+				return v.g;
+			if (part == ColorPart.Blue)
+				return v.b;
+
+			return -1.0f;
 		}
-		
+
+		public void SetValue(int id, ColorPart part, float value) {
+			Color v = this.Get(id);
+
+			if (part == ColorPart.Red)
+				v.r = value;
+			if (part == ColorPart.Green)
+				v.g = value;
+			if (part == ColorPart.Blue)
+				v.b = value;
+
+			switch (id) {
+				case 0:
+					this.colourA = v;
+					break;
+
+				case 1:
+					this.colourB = v;
+					break;
+			}
+		}
+
 		private Color Get(int id) {
 			return id switch {
-				0 => colourA,
-				1 => colourB,
+				0 => this.colourA,
+				1 => this.colourB,
 				_ => Color.black,
 			};
 		}
-		
+
 		public Vector2 panelPos;
 		public Color colourA;
 		public Color colourB;

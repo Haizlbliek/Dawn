@@ -6,12 +6,12 @@ using RWCustom;
 using UnityEngine;
 
 namespace Dawn {
-    class DawnObject : PlacedObject {
-        public DawnObject(Type type, Data data) : base(type, data) {
-        }
-    }
+	class DawnObject : PlacedObject {
+		public DawnObject(Type type, Data data) : base(type, data) {
+		}
+	}
 
-    class DawnObjectRepresentation : DevInterface.PlacedObjectRepresentation {
+	class DawnObjectRepresentation : DevInterface.PlacedObjectRepresentation {
 		public DawnObjectRepresentation(DevUI owner, string IDstring, DevUINode parentNode, PlacedObject pObj, string name) : base(owner, IDstring, parentNode, pObj, name) {
 			this.subNodes.Add(new DawnObjectRepresentation.DawnControlPanel(owner, "Dawn_Control_Panel", this, new Vector2(10f, 10f)));
 			(this.subNodes[this.subNodes.Count - 1] as DawnObjectRepresentation.DawnControlPanel).pos = (pObj.data as DawnObjectData).panelPos;
@@ -42,11 +42,11 @@ namespace Dawn {
 				}
 
 				public override void Increment(int change) {
-                    ((this.parentNode.parentNode as DawnObjectRepresentation).pObj.data as DawnObjectData).dawnPalette += change;
+					((this.parentNode.parentNode as DawnObjectRepresentation).pObj.data as DawnObjectData).dawnPalette += change;
 
-                    if (((this.parentNode.parentNode as DawnObjectRepresentation).pObj.data as DawnObjectData).dawnPalette < 0) {
-                        ((this.parentNode.parentNode as DawnObjectRepresentation).pObj.data as DawnObjectData).dawnPalette = 0;
-                    }
+					if (((this.parentNode.parentNode as DawnObjectRepresentation).pObj.data as DawnObjectData).dawnPalette < 0) {
+						((this.parentNode.parentNode as DawnObjectRepresentation).pObj.data as DawnObjectData).dawnPalette = 0;
+					}
 
 					this.Refresh();
 				}
@@ -57,16 +57,16 @@ namespace Dawn {
 					base.Refresh();
 				}
 			}
-        }
-    }
+		}
+	}
 
-    class DawnObjectData : PlacedObject.Data {
-        public DawnObjectData(PlacedObject owner) : base(owner) {
+	class DawnObjectData : PlacedObject.Data {
+		public DawnObjectData(PlacedObject owner) : base(owner) {
 			this.panelPos = Custom.DegToVec(30f) * 10f;
-            this.dawnPalette = 23;
-        }
+			this.dawnPalette = 23;
+		}
 
-        public void Apply(Room room) {
+		public void Apply(Room room) {
 		}
 
 		protected string BaseSaveString() {
@@ -76,7 +76,7 @@ namespace Dawn {
 				this.dawnPalette
 			]);
 		}
-        
+
 		public override string ToString() {
 			string text = this.BaseSaveString();
 			text = SaveState.SetCustomData(this, text);
@@ -89,12 +89,13 @@ namespace Dawn {
 				this.panelPos.x = float.Parse(array[0], NumberStyles.Any, CultureInfo.InvariantCulture);
 				this.panelPos.y = float.Parse(array[1], NumberStyles.Any, CultureInfo.InvariantCulture);
 				this.dawnPalette = int.Parse(array[2], NumberStyles.Any, CultureInfo.InvariantCulture);
-			} catch (Exception) {
+			}
+			catch (Exception) {
 			}
 			this.unrecognizedAttributes = SaveUtils.PopulateUnrecognizedStringAttrs(array, 4);
 		}
-        
+
 		public Vector2 panelPos;
-        public int dawnPalette;
-    }
+		public int dawnPalette;
+	}
 }

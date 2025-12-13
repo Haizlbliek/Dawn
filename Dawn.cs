@@ -28,7 +28,7 @@ public class Plugin : BaseUnityPlugin {
 	public float fadeBlendNight = 0f;
 	public float fadeBlendDawn = 0f;
 	public float fadeBlendHalfDawn = 0f;
-	
+
 	private Color effectColorHalfDuskA = Color.black;
 	private Color effectColorDuskA = Color.black;
 	private Color effectColorDarkA = Color.black;
@@ -40,131 +40,134 @@ public class Plugin : BaseUnityPlugin {
 	private Color effectColorDarkB = Color.black;
 	private Color effectColorDawnB = Color.black;
 	private Color effectColorHalfDawnB = Color.black;
-	
+
 	public Time timeLerpA = Time.NONE;
 	public Time timeLerpB = Time.NONE;
 	public float lerpAmount = 0.0f;
 	public Room currentRoom = null;
 	public int currentCameraPosition = 0;
-	
+
 	public readonly DawnDevTools dawnDev = new DawnDevTools();
-	
+
 	public static Plugin instance = null;
 
 	public void Log(object data) {
-		Logger.LogInfo(data);
+		this.Logger.LogInfo(data);
 		Debug.Log(data);
 	}
 
 	public void OnEnable() {
 		instance = this;
-		
-		Log("Hello world!");
+
+		this.Log("Hello world!");
 
 		DawnEnums.Initialize();
-		dawnDev.Initialize();
+		this.dawnDev.Initialize();
 		TerrainController.Initialize();
 
-		On.RoomCamera.UpdateDayNightPalette += On_RoomCamera_UpdateDayNightPalette;
+		On.RoomCamera.UpdateDayNightPalette += this.On_RoomCamera_UpdateDayNightPalette;
 
-		On.PlacedObject.GenerateEmptyData += On_PlacedObject_GenerateEmptyData;
+		On.PlacedObject.GenerateEmptyData += this.On_PlacedObject_GenerateEmptyData;
 
-		On.RainCycle.Update += On_RainCycle_Update;
+		On.RainCycle.Update += this.On_RainCycle_Update;
 
-		On.DevInterface.ObjectsPage.CreateObjRep += On_DevInterface_ObjectsPage_CreateObjRep;
-		On.DevInterface.ObjectsPage.DevObjectGetCategoryFromPlacedType += On_DevInterface_ObjectsPage_DevObjectGetCategoryFromPlacedType;
+		On.DevInterface.ObjectsPage.CreateObjRep += this.On_DevInterface_ObjectsPage_CreateObjRep;
+		On.DevInterface.ObjectsPage.DevObjectGetCategoryFromPlacedType += this.On_DevInterface_ObjectsPage_DevObjectGetCategoryFromPlacedType;
 
-		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += On_DevInterface_RoomSettingsPage_DevEffectGetCategoryFromEffectType;
+		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += this.On_DevInterface_RoomSettingsPage_DevEffectGetCategoryFromEffectType;
 
-		On.RainTracker.Utility += On_RainTracker_Utility;
+		On.RainTracker.Utility += this.On_RainTracker_Utility;
 
-		On.AbstractCreature.InDenUpdate += On_AbstractCreature_InDenUpdate;
+		On.AbstractCreature.InDenUpdate += this.On_AbstractCreature_InDenUpdate;
 
-		On.HUD.HUD.InitSinglePlayerHud += On_HUD_InitSinglePlayerHud;
+		On.HUD.HUD.InitSinglePlayerHud += this.On_HUD_InitSinglePlayerHud;
 
-		On.World.ctor += On_World_ctor;
-		
-		On.RoomCamera.ApplyPalette += On_RoomCamera_ApplyPalette;
-		On.RoomCamera.ModifyEffectColorA += On_RoomCamera_ModifyEffectColorA;
-		On.RoomCamera.ModifyEffectColorB += On_RoomCamera_ModifyEffectColorB;
-		
-		On.Player.ProcessDebugInputs += On_Player_ProcessDebugInputs;
-		
-		On.Room.ctor += On_Room_ctor;
+		On.World.ctor += this.On_World_ctor;
+
+		On.RoomCamera.ApplyPalette += this.On_RoomCamera_ApplyPalette;
+		On.RoomCamera.ModifyEffectColorA += this.On_RoomCamera_ModifyEffectColorA;
+		On.RoomCamera.ModifyEffectColorB += this.On_RoomCamera_ModifyEffectColorB;
+
+		On.Player.ProcessDebugInputs += this.On_Player_ProcessDebugInputs;
+
+		On.Room.ctor += this.On_Room_ctor;
 	}
 
 	public void OnDisable() {
 		DawnEnums.Cleanup();
-		dawnDev.Cleanup();
+		this.dawnDev.Cleanup();
 		TerrainController.Cleanup();
 	}
-	
+
 
 
 	private void On_RoomCamera_ApplyPalette(On.RoomCamera.orig_ApplyPalette orig, RoomCamera self) {
-		currentRoom = self.room;
-		currentCameraPosition = self.currentCameraPosition;
+		this.currentRoom = self.room;
+		this.currentCameraPosition = self.currentCameraPosition;
 		orig(self);
 	}
 
 	private void On_Room_ctor(On.Room.orig_ctor orig, Room self, RainWorldGame game, World world, AbstractRoom abstractRoom, bool devUI) {
 		orig(self, game, world, abstractRoom, devUI);
-		
+
 		self.roomSettings = new DawnRoomSettings(self.roomSettings);
 	}
 
 	private void On_Player_ProcessDebugInputs(On.Player.orig_ProcessDebugInputs orig, Player self) {
-		if (self.room == null || !self.room.game.devToolsActive) return;
+		if (self.room == null || !self.room.game.devToolsActive)
+			return;
 
 		orig(self);
-		
+
 		if (Input.GetKeyDown("d")) {
 			DawnRainCycle rainCycle = self.room.world.rainCycle as DawnRainCycle;
 
-			if (rainCycle == null) return;
-			
+			if (rainCycle == null)
+				return;
+
 			rainCycle.dayNightCounter += 4000;
 		}
 	}
-	
+
 	private Color LerpColor(Color orig, Color halfDusk, Color dusk, Color dark, Color dawn, Color halfDawn) {
 		return Color.Lerp(Color.Lerp(Color.Lerp(Color.Lerp(Color.Lerp(
 			orig,
-			halfDusk, fadeBlendHalfDusk),
-			dusk, fadeBlendDusk),
-			dark, fadeBlendNight),
-			dawn, fadeBlendDawn),
-			halfDawn, fadeBlendHalfDawn
+			halfDusk, this.fadeBlendHalfDusk),
+			dusk, this.fadeBlendDusk),
+			dark, this.fadeBlendNight),
+			dawn, this.fadeBlendDawn),
+			halfDawn, this.fadeBlendHalfDawn
 		);
 	}
-	
+
 	private Color ModifyColor(Color orig, int index) {
 		if (index == 0) {
-			return LerpColor(orig, effectColorHalfDuskA, effectColorDuskA, effectColorDarkA, effectColorDawnA, effectColorHalfDawnA);
-		} else if (index == 1) {
-			return LerpColor(orig, effectColorHalfDuskB, effectColorDuskB, effectColorDarkB, effectColorDawnB, effectColorHalfDawnB);
+			return this.LerpColor(orig, this.effectColorHalfDuskA, this.effectColorDuskA, this.effectColorDarkA, this.effectColorDawnA, this.effectColorHalfDawnA);
 		}
-		
+		else if (index == 1) {
+			return this.LerpColor(orig, this.effectColorHalfDuskB, this.effectColorDuskB, this.effectColorDarkB, this.effectColorDawnB, this.effectColorHalfDawnB);
+		}
+
 		return orig;
 	}
 
 	private Color[] On_RoomCamera_ModifyEffectColorA(On.RoomCamera.orig_ModifyEffectColorA orig, RoomCamera self, Color[] colors) {
 		Color[] newColors = orig(self, colors);
-		
+
 		for (int i = 0; i < newColors.Length; i++) {
-			newColors[i] = ModifyColor(newColors[i], 0);
+			newColors[i] = this.ModifyColor(newColors[i], 0);
 		}
-		
+
 		return newColors;
 	}
 
 	private Color[] On_RoomCamera_ModifyEffectColorB(On.RoomCamera.orig_ModifyEffectColorB orig, RoomCamera self, Color[] colors) {
 		Color[] newColors = orig(self, colors);
-		
+
 		for (int i = 0; i < newColors.Length; i++) {
-			newColors[i] = ModifyColor(newColors[i], 1);
+			newColors[i] = this.ModifyColor(newColors[i], 1);
 		}
-		
+
 		return newColors;
 	}
 
@@ -177,17 +180,20 @@ public class Plugin : BaseUnityPlugin {
 				float minutes;
 				if (game.GetStorySession.characterStats.name == SlugcatStats.Name.Yellow || (ModManager.MSC && (game.GetStorySession.characterStats.name == MoreSlugcatsEnums.SlugcatStatsName.Rivulet || game.GetStorySession.characterStats.name == MoreSlugcatsEnums.SlugcatStatsName.Gourmand || game.GetStorySession.characterStats.name == MoreSlugcatsEnums.SlugcatStatsName.Saint))) {
 					minutes = Mathf.Lerp(game.rainWorld.setup.cycleTimeMin, game.rainWorld.setup.cycleTimeMax, 0.35f + 0.65f * Mathf.Pow(Random.value, 1.2f)) / 60f;
-				} else {
+				}
+				else {
 					minutes = Mathf.Lerp(game.rainWorld.setup.cycleTimeMin, game.rainWorld.setup.cycleTimeMax, Random.value) / 60f;
 				}
 
-				if (ModManager.MMF && MMF.cfgNoRandomCycles.Value) minutes = game.rainWorld.setup.cycleTimeMax / 60f;
+				if (ModManager.MMF && MMF.cfgNoRandomCycles.Value)
+					minutes = game.rainWorld.setup.cycleTimeMax / 60f;
 
 				self.rainCycle = new DawnRainCycle(self, minutes);
 
 				if (ModManager.TimelineModule && name == "SB")
 					self.rainCycle.filtrationPowerBehavior = new FiltrationPowerController(self);
-			} else {
+			}
+			else {
 				self.rainCycle = new RainCycle(self, game.GetArenaGameSession.rainCycleTimeInMinutes);
 			}
 		}
@@ -204,7 +210,7 @@ public class Plugin : BaseUnityPlugin {
 			orig(self, time);
 			return;
 		}
-		
+
 		if (self.stuckObjects.Count > 0) {
 			orig(self, time);
 			return;
@@ -218,7 +224,8 @@ public class Plugin : BaseUnityPlugin {
 						// Debug.Log("Set NIGHT to go out");
 						self.Room.MoveEntityOutOfDen(self);
 					}
-				} else {
+				}
+				else {
 					if (self.world.rainCycle.TimeUntilRain > (self.world.game.IsStorySession ? 60 : 15) * 40) {
 						self.remainInDenCounter = Random.Range(100, 400);
 						// Debug.Log("Set DAY to go out");
@@ -237,14 +244,17 @@ public class Plugin : BaseUnityPlugin {
 
 			if (!self.Room.world.game.IsArenaSession || self.Room.world.game.GetArenaGameSession.IsCreatureAllowedToEmergeFromDen(self)) {
 				if (ModManager.MSC) {
-					if (!self.Room.isBattleArena) self.remainInDenCounter -= time;
+					if (!self.Room.isBattleArena)
+						self.remainInDenCounter -= time;
 
-					if (self.DrainWorldDenFlooded() && self.remainInDenCounter < 0) self.remainInDenCounter = UnityEngine.Random.Range(100, 400);
+					if (self.DrainWorldDenFlooded() && self.remainInDenCounter < 0)
+						self.remainInDenCounter = UnityEngine.Random.Range(100, 400);
 
 					if (self.Room.battleArenaTriggeredTime > 0) {
 						self.remainInDenCounter = -1; // Force in den
 					}
-				} else {
+				}
+				else {
 					self.remainInDenCounter -= time;
 				}
 
@@ -257,10 +267,12 @@ public class Plugin : BaseUnityPlugin {
 	}
 
 	private float On_RainTracker_Utility(On.RainTracker.orig_Utility orig, RainTracker self) {
-		if ((self.rainCycle as DawnRainCycle) == null || !(self.rainCycle as DawnRainCycle).inRoomWithDawn) return orig(self);
+		if ((self.rainCycle as DawnRainCycle) == null || !(self.rainCycle as DawnRainCycle).inRoomWithDawn)
+			return orig(self);
 
 		if (self.AI.creature != null && self.AI.creature.nightCreature) {
-			if (self.rainCycle.dayNightCounter <= 0 || self.rainCycle.dayNightCounter >= 1320f * (2.92f + (self.rainCycle as DawnRainCycle).GetNightLengthRatio())) return 1.0f;
+			if (self.rainCycle.dayNightCounter <= 0 || self.rainCycle.dayNightCounter >= 1320f * (2.92f + (self.rainCycle as DawnRainCycle).GetNightLengthRatio()))
+				return 1.0f;
 
 			return 0.0f;
 		}
@@ -290,7 +302,7 @@ public class Plugin : BaseUnityPlugin {
 		if (type == DawnEnums.DawnObject) {
 			return ObjectsPage.DevObjectCategories.Gameplay;
 		}
-		
+
 		if (
 			type == DawnEnums.HalfDuskEffectColours ||
 			type == DawnEnums.DuskEffectColours ||
@@ -313,12 +325,13 @@ public class Plugin : BaseUnityPlugin {
 				(pObj.data as PlacedObject.LightFixtureData).type = self.lastPlacedLightFixture;
 			}
 		}
-		
+
 		PlacedObjectRepresentation placedObjectRepresentation = null;
 
 		if (tp == DawnEnums.DawnObject) {
 			placedObjectRepresentation = new DawnObjectRepresentation(self.owner, tp.ToString() + "_Rep", self, pObj, tp.ToString());
-		} else if (
+		}
+		else if (
 			tp == DawnEnums.HalfDuskEffectColours ||
 			tp == DawnEnums.DuskEffectColours ||
 			tp == DawnEnums.NightEffectColours ||
@@ -331,7 +344,8 @@ public class Plugin : BaseUnityPlugin {
 		if (placedObjectRepresentation != null) {
 			self.tempNodes.Add(placedObjectRepresentation);
 			self.subNodes.Add(placedObjectRepresentation);
-		} else {
+		}
+		else {
 			orig(self, tp, pObj);
 		}
 	}
@@ -341,7 +355,7 @@ public class Plugin : BaseUnityPlugin {
 			self.data = new DawnObjectData(self);
 			return;
 		}
-		
+
 		if (
 			self.type == DawnEnums.HalfDuskEffectColours ||
 			self.type == DawnEnums.DuskEffectColours ||
@@ -355,18 +369,18 @@ public class Plugin : BaseUnityPlugin {
 
 		orig(self);
 	}
-	
-	public void On_RoomCamera_UpdateDayNightPalette(On.RoomCamera.orig_UpdateDayNightPalette orig, RoomCamera self) {
-		fadeBlendDay = 1.0f;
-		fadeBlendHalfDusk = 0.0f;
-		fadeBlendDusk = 0.0f;
-		fadeBlendNight = 0.0f;
-		fadeBlendDawn = 0.0f;
-		fadeBlendHalfDawn = 0.0f;
 
-		timeLerpA = Time.Day;
-		timeLerpB = Time.HalfDusk;
-		lerpAmount = 0.0f;
+	public void On_RoomCamera_UpdateDayNightPalette(On.RoomCamera.orig_UpdateDayNightPalette orig, RoomCamera self) {
+		this.fadeBlendDay = 1.0f;
+		this.fadeBlendHalfDusk = 0.0f;
+		this.fadeBlendDusk = 0.0f;
+		this.fadeBlendNight = 0.0f;
+		this.fadeBlendDawn = 0.0f;
+		this.fadeBlendHalfDawn = 0.0f;
+
+		this.timeLerpA = Time.Day;
+		this.timeLerpB = Time.HalfDusk;
+		this.lerpAmount = 0.0f;
 
 		float effect_dawn = self.room.roomSettings.GetEffectAmount(DawnEnums.DawnEffect) * 0.99f;
 		DawnRainCycle dawnRainCycle = self.room.world.rainCycle as DawnRainCycle;
@@ -382,7 +396,7 @@ public class Plugin : BaseUnityPlugin {
 			float num4 = 2.00f + dawnRainCycle.GetNightLengthRatio();
 			float num5 = 2.45f + dawnRainCycle.GetNightLengthRatio();
 			float num6 = 2.92f + dawnRainCycle.GetNightLengthRatio();
-			
+
 			int normalPalette = self.room.roomSettings.Palette;
 			int fadePalette = normalPalette;
 			int dawnPalette = -1;
@@ -394,29 +408,34 @@ public class Plugin : BaseUnityPlugin {
 			foreach (PlacedObject placedObject in self.room.roomSettings.placedObjects) {
 				if (placedObject.type == DawnEnums.DawnObject) {
 					dawnPalette = (placedObject.data as DawnObjectData).dawnPalette;
-				} else if (placedObject.type == DawnEnums.HalfDuskEffectColours) {
-					effectColorHalfDuskA = (placedObject.data as CustomEffectColoursData).colourA;
-					effectColorHalfDuskB = (placedObject.data as CustomEffectColoursData).colourB;
-				} else if (placedObject.type == DawnEnums.DuskEffectColours) {
-					effectColorDuskA = (placedObject.data as CustomEffectColoursData).colourA;
-					effectColorDuskB = (placedObject.data as CustomEffectColoursData).colourB;
-				} else if (placedObject.type == DawnEnums.NightEffectColours) {
-					effectColorDarkA = (placedObject.data as CustomEffectColoursData).colourA;
-					effectColorDarkB = (placedObject.data as CustomEffectColoursData).colourB;
-				} else if (placedObject.type == DawnEnums.DawnEffectColours) {
-					effectColorDawnA = (placedObject.data as CustomEffectColoursData).colourA;
-					effectColorDawnB = (placedObject.data as CustomEffectColoursData).colourB;
-				} else if (placedObject.type == DawnEnums.HalfDawnEffectColours) {
-					effectColorHalfDawnA = (placedObject.data as CustomEffectColoursData).colourA;
-					effectColorHalfDawnB = (placedObject.data as CustomEffectColoursData).colourB;
+				}
+				else if (placedObject.type == DawnEnums.HalfDuskEffectColours) {
+					this.effectColorHalfDuskA = (placedObject.data as CustomEffectColoursData).colourA;
+					this.effectColorHalfDuskB = (placedObject.data as CustomEffectColoursData).colourB;
+				}
+				else if (placedObject.type == DawnEnums.DuskEffectColours) {
+					this.effectColorDuskA = (placedObject.data as CustomEffectColoursData).colourA;
+					this.effectColorDuskB = (placedObject.data as CustomEffectColoursData).colourB;
+				}
+				else if (placedObject.type == DawnEnums.NightEffectColours) {
+					this.effectColorDarkA = (placedObject.data as CustomEffectColoursData).colourA;
+					this.effectColorDarkB = (placedObject.data as CustomEffectColoursData).colourB;
+				}
+				else if (placedObject.type == DawnEnums.DawnEffectColours) {
+					this.effectColorDawnA = (placedObject.data as CustomEffectColoursData).colourA;
+					this.effectColorDawnB = (placedObject.data as CustomEffectColoursData).colourB;
+				}
+				else if (placedObject.type == DawnEnums.HalfDawnEffectColours) {
+					this.effectColorHalfDawnA = (placedObject.data as CustomEffectColoursData).colourA;
+					this.effectColorHalfDawnB = (placedObject.data as CustomEffectColoursData).colourB;
 				}
 			}
-			
+
 			if (dawnPalette == -1) {
 				dawnPalette = 0;
 			}
 
-			fadeBlendDay = 0.0f;
+			this.fadeBlendDay = 0.0f;
 
 			if (self.room.world.rainCycle.dayNightCounter < num) { // Normal -> Fade Palette       NOTE: MILESTONE 1
 				if (self.room.roomSettings.GetEffectAmount(RoomSettings.RoomEffect.Type.AboveCloudsView) > 0f && self.room.roomSettings.GetEffectAmount(RoomSettings.RoomEffect.Type.SkyAndLightBloom) > 0f) {
@@ -428,161 +447,173 @@ public class Plugin : BaseUnityPlugin {
 					a = self.room.roomSettings.fadePalette.fades[self.currentCameraPosition];
 				}
 
-				lerpAmount = self.room.world.rainCycle.dayNightCounter / num;
-				timeLerpA = Time.Day;
-				timeLerpB = Time.HalfDusk;
+				this.lerpAmount = self.room.world.rainCycle.dayNightCounter / num;
+				this.timeLerpA = Time.Day;
+				this.timeLerpB = Time.HalfDusk;
 
-				self.paletteBlend = Mathf.Lerp(a, 1f, lerpAmount);
+				self.paletteBlend = Mathf.Lerp(a, 1f, this.lerpAmount);
 				self.ApplyFade();
-				
-				fadeBlendDay = Mathf.Lerp(1.0f, 0.0f, lerpAmount);
-				fadeBlendHalfDusk = Mathf.Lerp(0.0f, 1.0f, lerpAmount);
 
-			} else if (self.room.world.rainCycle.dayNightCounter == num) { // Fade Palette
+				this.fadeBlendDay = Mathf.Lerp(1.0f, 0.0f, this.lerpAmount);
+				this.fadeBlendHalfDusk = Mathf.Lerp(0.0f, 1.0f, this.lerpAmount);
+
+			}
+			else if (self.room.world.rainCycle.dayNightCounter == num) { // Fade Palette
 				self.ChangeBothPalettes(self.paletteB, self.room.world.rainCycle.duskPalette, 0f);
-				
-				fadeBlendHalfDusk = 1.0f;
-				lerpAmount = 1.0f;
-				timeLerpB = Time.HalfDusk;
 
-			} else if (self.room.world.rainCycle.dayNightCounter < num * num2) { // Fade Palette -> Dusk Palette NOTE: MILESTONE 2
+				this.fadeBlendHalfDusk = 1.0f;
+				this.lerpAmount = 1.0f;
+				this.timeLerpB = Time.HalfDusk;
+
+			}
+			else if (self.room.world.rainCycle.dayNightCounter < num * num2) { // Fade Palette -> Dusk Palette NOTE: MILESTONE 2
 				if (self.paletteBlend == 1f || self.paletteB != self.room.world.rainCycle.duskPalette || self.dayNightNeedsRefresh) {
 					self.ChangeBothPalettes(self.paletteB, self.room.world.rainCycle.duskPalette, 0f);
 				}
-				
-				lerpAmount = (self.room.world.rainCycle.dayNightCounter - num) / (num * (num2 - 1.0f));
-				timeLerpA = Time.HalfDusk;
-				timeLerpB = Time.Dusk;
-				
+
+				this.lerpAmount = (self.room.world.rainCycle.dayNightCounter - num) / (num * (num2 - 1.0f));
+				this.timeLerpA = Time.HalfDusk;
+				this.timeLerpB = Time.Dusk;
+
 				self.paletteBlend = Mathf.InverseLerp(num, num * num2, self.room.world.rainCycle.dayNightCounter);
 				self.ApplyFade();
 
-				fadeBlendHalfDusk = Mathf.Lerp(1.0f, 0.0f, lerpAmount);
-				fadeBlendDusk = Mathf.Lerp(0.0f, 1.0f, lerpAmount);
+				this.fadeBlendHalfDusk = Mathf.Lerp(1.0f, 0.0f, this.lerpAmount);
+				this.fadeBlendDusk = Mathf.Lerp(0.0f, 1.0f, this.lerpAmount);
 
-			} else if (self.room.world.rainCycle.dayNightCounter == num * num2) { // Dusk Palette
+			}
+			else if (self.room.world.rainCycle.dayNightCounter == num * num2) { // Dusk Palette
 				self.ChangeBothPalettes(self.room.world.rainCycle.duskPalette, self.room.world.rainCycle.nightPalette, 0f);
-				
-				fadeBlendDusk = 1.0f;
 
-				timeLerpB = Time.Dusk;
-				lerpAmount = 1.0f;
+				this.fadeBlendDusk = 1.0f;
 
-			} else if (self.room.world.rainCycle.dayNightCounter < num * num3) { // Dusk Palette -> Evening Palette         NOTE: MILESTONE 3
+				this.timeLerpB = Time.Dusk;
+				this.lerpAmount = 1.0f;
+
+			}
+			else if (self.room.world.rainCycle.dayNightCounter < num * num3) { // Dusk Palette -> Evening Palette         NOTE: MILESTONE 3
 				if (self.paletteBlend == 1f || self.paletteB != self.room.world.rainCycle.nightPalette || self.paletteA != self.room.world.rainCycle.duskPalette || self.dayNightNeedsRefresh) {
 					self.ChangeBothPalettes(self.room.world.rainCycle.duskPalette, self.room.world.rainCycle.nightPalette, 0f);
 				}
-				
-				lerpAmount = (self.room.world.rainCycle.dayNightCounter - num * num2) / (num * (num3 - num2));
-				timeLerpA = Time.Dusk;
-				timeLerpB = Time.Night;
+
+				this.lerpAmount = (self.room.world.rainCycle.dayNightCounter - num * num2) / (num * (num3 - num2));
+				this.timeLerpA = Time.Dusk;
+				this.timeLerpB = Time.Night;
 
 				self.paletteBlend = Mathf.InverseLerp(num * num2, num * num3, self.room.world.rainCycle.dayNightCounter) * (self.effect_dayNight * 0.99f);
 				self.ApplyFade();
-				
-				fadeBlendDusk = Mathf.Lerp(1.0f, 0.0f, lerpAmount);
-				fadeBlendNight = Mathf.Lerp(0.0f, 1.0f, lerpAmount);
 
-			} else if (self.room.world.rainCycle.dayNightCounter == num * num3) { // Evening Palette
+				this.fadeBlendDusk = Mathf.Lerp(1.0f, 0.0f, this.lerpAmount);
+				this.fadeBlendNight = Mathf.Lerp(0.0f, 1.0f, this.lerpAmount);
+
+			}
+			else if (self.room.world.rainCycle.dayNightCounter == num * num3) { // Evening Palette
 				self.ChangeBothPalettes(self.room.world.rainCycle.duskPalette, self.room.world.rainCycle.nightPalette, self.effect_dayNight * 0.99f);
-				
-				lerpAmount = 1.0f;
-				timeLerpB = Time.Night;
-				fadeBlendNight = 1.0f;
 
-			} else if (self.room.world.rainCycle.dayNightCounter < num * num4) { // Evening Palette -> Night Palette       NOTE: MILESTONE 4
+				this.lerpAmount = 1.0f;
+				this.timeLerpB = Time.Night;
+				this.fadeBlendNight = 1.0f;
+
+			}
+			else if (self.room.world.rainCycle.dayNightCounter < num * num4) { // Evening Palette -> Night Palette       NOTE: MILESTONE 4
 				if (self.paletteBlend == 1f || self.paletteB != self.room.world.rainCycle.nightPalette || self.paletteA != self.room.world.rainCycle.duskPalette || self.dayNightNeedsRefresh) {
 					self.ChangeBothPalettes(self.room.world.rainCycle.duskPalette, self.room.world.rainCycle.nightPalette, self.effect_dayNight);
 				}
 
-				lerpAmount = 1.0f;
-				timeLerpB = Time.Night;
+				this.lerpAmount = 1.0f;
+				this.timeLerpB = Time.Night;
 
 				self.paletteBlend = 1.0f - (Mathf.InverseLerp(num * num4, num * num3, self.room.world.rainCycle.dayNightCounter) * (1.0f - self.effect_dayNight * 0.99f));
 				self.ApplyFade();
 
-				fadeBlendNight = 1.0f;
+				this.fadeBlendNight = 1.0f;
 
-			} else if (self.room.world.rainCycle.dayNightCounter == num * num4) { // Night Palette
+			}
+			else if (self.room.world.rainCycle.dayNightCounter == num * num4) { // Night Palette
 				self.ChangeBothPalettes(self.room.world.rainCycle.nightPalette, dawnPalette, 0.0f);
-				
-				lerpAmount = 1.0f;
-				timeLerpB = Time.Night;
 
-				fadeBlendNight = 1.0f;
+				this.lerpAmount = 1.0f;
+				this.timeLerpB = Time.Night;
 
-			} else if (self.room.world.rainCycle.dayNightCounter < num * num5) { // Night Palette -> Dawn Palette         NOTE: MILESTONE 5
+				this.fadeBlendNight = 1.0f;
+
+			}
+			else if (self.room.world.rainCycle.dayNightCounter < num * num5) { // Night Palette -> Dawn Palette         NOTE: MILESTONE 5
 				if (self.paletteBlend == 1f || self.paletteA != self.room.world.rainCycle.nightPalette || self.paletteB != dawnPalette || self.dayNightNeedsRefresh) {
 					self.ChangeBothPalettes(self.room.world.rainCycle.nightPalette, dawnPalette, 0.0f);
 				}
 
-				lerpAmount = (self.room.world.rainCycle.dayNightCounter - num * num4) / (num * (num5 - num4));
-				timeLerpA = Time.Night;
-				timeLerpB = Time.Dawn;
+				this.lerpAmount = (self.room.world.rainCycle.dayNightCounter - num * num4) / (num * (num5 - num4));
+				this.timeLerpA = Time.Night;
+				this.timeLerpB = Time.Dawn;
 
 				self.paletteBlend = Mathf.InverseLerp(num * num4, num * num5, self.room.world.rainCycle.dayNightCounter);
 				self.ApplyFade();
 
-				fadeBlendNight = Mathf.Lerp(1.0f, 0.0f, lerpAmount);
-				fadeBlendDawn = Mathf.Lerp(0.0f, 1.0f, lerpAmount);
+				this.fadeBlendNight = Mathf.Lerp(1.0f, 0.0f, this.lerpAmount);
+				this.fadeBlendDawn = Mathf.Lerp(0.0f, 1.0f, this.lerpAmount);
 
-			} else if (self.room.world.rainCycle.dayNightCounter == num * num5) { // Dawn Palette
+			}
+			else if (self.room.world.rainCycle.dayNightCounter == num * num5) { // Dawn Palette
 				self.ChangeBothPalettes(dawnPalette, dawnPalette, 0.0f);
-				
-				lerpAmount = 1.0f;
-				timeLerpB = Time.Dawn;
-				
-				fadeBlendDawn = 1.0f;
 
-			} else if (self.room.world.rainCycle.dayNightCounter < num * num6) { // Dawn Palette -> Fade Palette              NOTE: MILESTONE 6
+				this.lerpAmount = 1.0f;
+				this.timeLerpB = Time.Dawn;
+
+				this.fadeBlendDawn = 1.0f;
+
+			}
+			else if (self.room.world.rainCycle.dayNightCounter < num * num6) { // Dawn Palette -> Fade Palette              NOTE: MILESTONE 6
 				if (self.paletteBlend == 1f || self.paletteA != dawnPalette || self.dayNightNeedsRefresh) {
 					self.ChangeBothPalettes(dawnPalette, fadePalette, 0.0f);
 				}
 
-				lerpAmount = (self.room.world.rainCycle.dayNightCounter - num * num5) / (num * (num6 - num5));
-				timeLerpA = Time.Dawn;
-				timeLerpB = Time.HalfDawn;
+				this.lerpAmount = (self.room.world.rainCycle.dayNightCounter - num * num5) / (num * (num6 - num5));
+				this.timeLerpA = Time.Dawn;
+				this.timeLerpB = Time.HalfDawn;
 
 				self.paletteBlend = Mathf.InverseLerp(num * num5, num * num6, self.room.world.rainCycle.dayNightCounter);
 				self.ApplyFade();
-				
-				fadeBlendDawn = Mathf.Lerp(1.0f, 0.0f, lerpAmount);
-				fadeBlendHalfDawn = Mathf.Lerp(0.0f, 1.0f, lerpAmount);
 
-			} else if (self.room.world.rainCycle.dayNightCounter == num * num6) { // Fade Palette
+				this.fadeBlendDawn = Mathf.Lerp(1.0f, 0.0f, this.lerpAmount);
+				this.fadeBlendHalfDawn = Mathf.Lerp(0.0f, 1.0f, this.lerpAmount);
+
+			}
+			else if (self.room.world.rainCycle.dayNightCounter == num * num6) { // Fade Palette
 				self.ChangeBothPalettes(normalPalette, fadePalette, 1.0f);
-				
-				lerpAmount = 1.0f;
-				timeLerpB = Time.HalfDawn;
-				
-				fadeBlendDawn = 0.0f;
-				fadeBlendHalfDawn = 1.0f;
 
-			} else if (self.room.world.rainCycle.dayNightCounter >= num * num6) { // Fade Palette -> Normal               NOTE: MILESTONE 7
+				this.lerpAmount = 1.0f;
+				this.timeLerpB = Time.HalfDawn;
+
+				this.fadeBlendDawn = 0.0f;
+				this.fadeBlendHalfDawn = 1.0f;
+
+			}
+			else if (self.room.world.rainCycle.dayNightCounter >= num * num6) { // Fade Palette -> Normal               NOTE: MILESTONE 7
 				if (self.paletteBlend == 0f || self.paletteA != normalPalette || self.dayNightNeedsRefresh) {
 					self.ChangeBothPalettes(normalPalette, fadePalette, 1.0f);
 				}
 
-				lerpAmount = (self.room.world.rainCycle.dayNightCounter - num * num6) / num;
-				timeLerpA = Time.HalfDawn;
-				timeLerpB = Time.Day;
+				this.lerpAmount = (self.room.world.rainCycle.dayNightCounter - num * num6) / num;
+				this.timeLerpA = Time.HalfDawn;
+				this.timeLerpB = Time.Day;
 
 				float a = 0.0f;
 				if (self.room.roomSettings.fadePalette != null && self.room.roomSettings.fadePalette.fades.Length > self.currentCameraPosition) {
 					a = self.room.roomSettings.fadePalette.fades[self.currentCameraPosition];
 				}
 
-				self.paletteBlend = Mathf.Lerp(1f, a, lerpAmount);
+				self.paletteBlend = Mathf.Lerp(1f, a, this.lerpAmount);
 				self.ApplyFade();
-				
-				fadeBlendHalfDawn = Mathf.Lerp(1.0f, 0.0f, lerpAmount);
-				fadeBlendDay = Mathf.Lerp(0.0f, 1.0f, lerpAmount);
+
+				this.fadeBlendHalfDawn = Mathf.Lerp(1.0f, 0.0f, this.lerpAmount);
+				this.fadeBlendDay = Mathf.Lerp(0.0f, 1.0f, this.lerpAmount);
 			}
 
 
-			timeSinceLog++;
-			if (timeSinceLog >= 15 && DO_LOGS) {
-				timeSinceLog = 0;
+			this.timeSinceLog++;
+			if (this.timeSinceLog >= 15 && DO_LOGS) {
+				this.timeSinceLog = 0;
 				Debug.Log(self.room.world.rainCycle.dayNightCounter);
 				Debug.Log("MILESTONE 1: " + (num * 1.0f) + "    " + (self.room.world.rainCycle.dayNightCounter >= (num * 1.0f) ? "Passed" : ""));
 				Debug.Log("MILESTONE 2: " + (num * num2) + "    " + (self.room.world.rainCycle.dayNightCounter >= (num * num2) ? "Passed" : ""));
@@ -596,18 +627,19 @@ public class Plugin : BaseUnityPlugin {
 				// Debug.Log("Dusk   Palette: " + self.room.world.rainCycle.duskPalette);
 				// Debug.Log("Night  Palette: " + self.room.world.rainCycle.nightPalette);
 				// Debug.Log("Dawn   Palette: " + dawnPalette);
-				Debug.Log("== Lerp A: " + timeLerpA);
-				Debug.Log("== Lerp B: " + timeLerpB);
-				Debug.Log("== Lerp T: " + lerpAmount);
+				Debug.Log("== Lerp A: " + this.timeLerpA);
+				Debug.Log("== Lerp B: " + this.timeLerpB);
+				Debug.Log("== Lerp T: " + this.lerpAmount);
 				Debug.Log("~~ Current Fade: " + self.paletteBlend);
 				Debug.Log("~~ Timer: " + self.room.world.rainCycle.timer + " / " + self.room.world.rainCycle.sunDownStartTime);
 			}
-		} else {
+		}
+		else {
 			orig(self);
 		}
-		
+
 		self.dayNightNeedsRefresh = false;
-		
+
 		self.ApplyEffectColorsToAllPaletteTextures(self.room.roomSettings.EffectColorA, self.room.roomSettings.EffectColorB);
 		TimeController.ApplyRoomSettings(self.room);
 	}

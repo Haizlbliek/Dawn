@@ -44,7 +44,8 @@ namespace Dawn {
 		}
 
 		public override void Update() {
-			if (this.rainCycle == null) return;
+			if (this.rainCycle == null)
+				return;
 
 			bool flag = (this.hud.owner as Player).room != null && (this.hud.owner as Player).room.game.setupValues.disableRain;
 
@@ -71,7 +72,8 @@ namespace Dawn {
 			}
 			if (ModManager.MMF && MMF.cfgTickTock.Value) {
 				this.tickPulse = Mathf.Lerp(this.tickPulse, 0f, 0.1f);
-			} else {
+			}
+			else {
 				this.tickPulse = 0f;
 			}
 			if ((this.hud.karmaMeter.fade > 0f && this.Show) || this.remainVisibleCounter > 0) {
@@ -87,7 +89,8 @@ namespace Dawn {
 						this.tickPulse = 1f;
 					}
 				}
-			} else {
+			}
+			else {
 				this.fade = Mathf.Max(0f, this.fade - 0.1f);
 			}
 			if (this.hud.HideGeneralHud) {
@@ -96,22 +99,24 @@ namespace Dawn {
 
 			if (this.fade >= 0.7f) {
 				this.plop = Mathf.Min(1f, this.plop + 0.05f);
-			} else {
+			}
+			else {
 				this.plop = 0f;
 			}
-			
+
 			if (flag) {
 				this.fRain = 0f;
-			} else if ((this.hud.owner as Player).room != null) {
-				this.fRain = 1.0f - (this.hud.owner as Player).room.world.rainCycle.dayNightCounter / (1320f * (3.92f + (rainCycle as DawnRainCycle).GetNightLengthRatio()));
+			}
+			else if ((this.hud.owner as Player).room != null) {
+				this.fRain = 1.0f - (this.hud.owner as Player).room.world.rainCycle.dayNightCounter / (1320f * (3.92f + (this.rainCycle as DawnRainCycle).GetNightLengthRatio()));
 			}
 
 			bool flag2 = ModManager.MMF && MMF.cfgHideRainMeterNoThreat.Value && (this.hud.owner as Player).room != null && this.rainCycle.RegionHidesTimer;
 			for (int i = 0; i < this.circles.Length; i++) {
 				this.circles[i].Update();
 				if (this.fade > 0f || this.lastFade > 0f) {
-					float num = (float)i / (float)(this.circles.Length - 1);
-					float value = Mathf.InverseLerp((float)i / (float)this.circles.Length, (float)(i + 1) / (float)this.circles.Length, this.fRain);
+					float num = (float) i / (float) (this.circles.Length - 1);
+					float value = Mathf.InverseLerp((float) i / (float) this.circles.Length, (float) (i + 1) / (float) this.circles.Length, this.fRain);
 					float num2 = Mathf.InverseLerp(0.5f, 0.475f, Mathf.Abs(0.5f - Mathf.InverseLerp(0.033333335f, 1f, value)));
 					if (flag2) {
 						this.circles[i].rad = (3f * Mathf.Pow(this.fade, 2f) + Mathf.InverseLerp(0.075f, 0f, Mathf.Abs(1f - num - Mathf.Lerp((1f - this.fRain) * this.fade - 0.075f, 1.075f, Mathf.Pow(this.plop, 0.85f)))) * 2f * this.fade) * Mathf.InverseLerp(0f, 0.033333335f, 1f);
@@ -119,7 +124,8 @@ namespace Dawn {
 						this.circles[i].snapGraphic = HUDCircle.SnapToGraphic.smallEmptyCircle;
 						this.circles[i].snapRad = 3f;
 						this.circles[i].snapThickness = 1f;
-					} else {
+					}
+					else {
 						if (this.halfTimeBlink > 0) {
 							num2 = Mathf.Max(num2, (this.halfTimeBlink % 15 < 7) ? 0f : 1f);
 						}
@@ -129,20 +135,22 @@ namespace Dawn {
 							this.circles[i].snapGraphic = HUDCircle.SnapToGraphic.Circle4;
 							this.circles[i].snapRad = 2f;
 							this.circles[i].snapThickness = -1f;
-						} else {
+						}
+						else {
 							this.circles[i].thickness = Mathf.Lerp(3.5f, 1f, num2);
 							this.circles[i].snapGraphic = HUDCircle.SnapToGraphic.smallEmptyCircle;
 							this.circles[i].snapRad = 3f;
 							this.circles[i].snapThickness = 1f;
 						}
 					}
-					this.circles[i].pos = this.pos + Custom.DegToVec((1f - (float)i / (float)this.circles.Length) * 360f * Custom.SCurve(Mathf.Pow(this.fade, 1.5f - num), 0.6f)) * (this.hud.karmaMeter.Radius + 8.5f + num2 + 4f * this.tickPulse);
+					this.circles[i].pos = this.pos + Custom.DegToVec((1f - (float) i / (float) this.circles.Length) * 360f * Custom.SCurve(Mathf.Pow(this.fade, 1.5f - num), 0.6f)) * (this.hud.karmaMeter.Radius + 8.5f + num2 + 4f * this.tickPulse);
 
-				} else {
+				}
+				else {
 					this.circles[i].rad = 0f;
 				}
 			}
-			
+
 			if ((this.rainCycle as DawnRainCycle).dayNightCounter <= 0 || !(this.rainCycle as DawnRainCycle).inRoomWithDawn) {
 				this.fade = 0f;
 				for (int i = 0; i < this.circles.Length; i++) {

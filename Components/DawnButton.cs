@@ -20,28 +20,32 @@ namespace Dawn.Components {
 			if (this.down) {
 				this.colorA = NIGHT_TEXT_COLOR;
 				this.colorB = NIGHT_PRESSED_COLOR;
-			} else if (base.MouseOver) {
+			}
+			else if (base.MouseOver) {
 				this.colorA = NIGHT_TEXT_COLOR;
 				this.colorB = NIGHT_HOVER_COLOR;
-			} else {
+			}
+			else {
 				this.colorA = NIGHT_TEXT_COLOR;
 				this.colorB = new Color(0.9f, 0.9f, 1.0f);
 			}
 		}
-		
+
 		private void ColorDay() {
 			if (this.down) {
 				this.colorA = DAY_TEXT_COLOR;
 				this.colorB = DAY_PRESSED_COLOR;
-			} else if (base.MouseOver) {
+			}
+			else if (base.MouseOver) {
 				this.colorA = DAY_TEXT_COLOR;
 				this.colorB = DAY_HOVER_COLOR;
-			} else {
+			}
+			else {
 				this.colorA = DAY_TEXT_COLOR;
 				this.colorB = Color.yellow;
 			}
 		}
-		
+
 		public virtual bool Active() {
 			return true;
 		}
@@ -53,10 +57,11 @@ namespace Dawn.Components {
 				return;
 			}
 
-			if (Active()) {
-				ColorDay();
-			} else {
-				ColorNight();
+			if (this.Active()) {
+				this.ColorDay();
+			}
+			else {
+				this.ColorNight();
 			}
 
 			this.overrideTextColor = this.colorB;

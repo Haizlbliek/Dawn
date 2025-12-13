@@ -1,31 +1,34 @@
 namespace Dawn {
 	static class TimeController {
 		static private float GetOr(RoomSettings settings, RoomSettings.RoomEffect.Type type, float defaultValue, float strength) {
-			if (strength <= 0.01f) return defaultValue * strength;
+			if (strength <= 0.01f)
+				return defaultValue * strength;
 
 			RoomSettings.RoomEffect effect = settings.GetEffect(type);
-			if (effect == null) return defaultValue * strength;
-			
+			if (effect == null)
+				return defaultValue * strength;
+
 			return effect.amount * strength;
 		}
-	
+
 		static private float GetStrength(DawnRoomSettings settings, RoomSettings.RoomEffect.Type type) {
 			float defaultValue = GetOr(settings.GetTimeSetting(Time.NONE), type, 0.0f, 1.0f);
-			
+
 			return
-				GetOr(settings.GetTimeSetting(Time.Day), type, defaultValue, Dawn.instance.fadeBlendDay) +
-				GetOr(settings.GetTimeSetting(Time.HalfDusk), type, defaultValue, Dawn.instance.fadeBlendHalfDusk) +
-				GetOr(settings.GetTimeSetting(Time.Dusk), type, defaultValue, Dawn.instance.fadeBlendDusk) +
-				GetOr(settings.GetTimeSetting(Time.Night), type, defaultValue, Dawn.instance.fadeBlendNight) +
-				GetOr(settings.GetTimeSetting(Time.Dawn), type, defaultValue, Dawn.instance.fadeBlendDawn) +
-				GetOr(settings.GetTimeSetting(Time.HalfDawn), type, defaultValue, Dawn.instance.fadeBlendHalfDawn)
+				GetOr(settings.GetTimeSetting(Time.Day), type, defaultValue, Plugin.instance.fadeBlendDay) +
+				GetOr(settings.GetTimeSetting(Time.HalfDusk), type, defaultValue, Plugin.instance.fadeBlendHalfDusk) +
+				GetOr(settings.GetTimeSetting(Time.Dusk), type, defaultValue, Plugin.instance.fadeBlendDusk) +
+				GetOr(settings.GetTimeSetting(Time.Night), type, defaultValue, Plugin.instance.fadeBlendNight) +
+				GetOr(settings.GetTimeSetting(Time.Dawn), type, defaultValue, Plugin.instance.fadeBlendDawn) +
+				GetOr(settings.GetTimeSetting(Time.HalfDawn), type, defaultValue, Plugin.instance.fadeBlendHalfDawn)
 			;
 		}
-	
+
 		static public void ApplyRoomSettings(Room room) {
 			DawnRoomSettings settings = room.roomSettings as DawnRoomSettings;
-			if (settings == null) return;
-			
+			if (settings == null)
+				return;
+
 			foreach (RoomSettings.RoomEffect effect in settings.effects) {
 				effect.amount = GetStrength(settings, effect.type);
 			}
