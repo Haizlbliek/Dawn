@@ -18,20 +18,19 @@ public class Plugin : BaseUnityPlugin {
 
 	public static string MOD_ID = "dawn";
 
-	private int timeSinceLog = 0;
-	private const bool DO_LOGS = false;
-
 	public Time timeLerpA = Time.NONE;
 	public Time timeLerpB = Time.NONE;
 	public float lerpAmount = 0.0f;
 	public Room currentRoom = null;
 	public int currentCameraPosition = 0;
 
-	public readonly DawnDevTools dawnDev = new DawnDevTools();
-
 	public static Plugin instance = null;
 
-	public void Log(object data) {
+	public static void Log(object data) {
+		instance.SelfLog(data);
+	}
+
+	public void SelfLog(object data) {
 		this.Logger.LogInfo(data);
 		Debug.Log(data);
 	}
@@ -39,10 +38,8 @@ public class Plugin : BaseUnityPlugin {
 	public void OnEnable() {
 		instance = this;
 
-		this.Log("Hello world!");
-
 		DawnEnums.Initialize();
-		this.dawnDev.Initialize();
+		DawnDevTools.Initialize();
 		TerrainController.Initialize();
 
 		On.RoomCamera.UpdateDayNightPalette += this.On_RoomCamera_UpdateDayNightPalette;
@@ -71,7 +68,7 @@ public class Plugin : BaseUnityPlugin {
 
 	public void OnDisable() {
 		DawnEnums.Cleanup();
-		this.dawnDev.Cleanup();
+		DawnDevTools.Cleanup();
 		TerrainController.Cleanup();
 	}
 
@@ -191,14 +188,14 @@ public class Plugin : BaseUnityPlugin {
 				if (self.nightCreature) {
 					if (self.world.rainCycle.dayNightCounter > 0 && self.world.rainCycle.dayNightCounter < 1320f * (2.92f + (self.world.rainCycle as DawnRainCycle).GetNightLengthRatio())) {
 						self.remainInDenCounter = Random.Range(100, 400);
-						// Debug.Log("Set NIGHT to go out");
+						// Plugin.Log("Set NIGHT to go out");
 						self.Room.MoveEntityOutOfDen(self);
 					}
 				}
 				else {
 					if (self.world.rainCycle.TimeUntilRain > (self.world.game.IsStorySession ? 60 : 15) * 40) {
 						self.remainInDenCounter = Random.Range(100, 400);
-						// Debug.Log("Set DAY to go out");
+						// Plugin.Log("Set DAY to go out");
 						self.Room.MoveEntityOutOfDen(self);
 					}
 				}
@@ -369,21 +366,6 @@ public class Plugin : BaseUnityPlugin {
 			}
 			else if (self.room.world.rainCycle.dayNightCounter <= num * num7) { // $ MILESTONE 7 - Fade Palette -> Normal Palette
 				this.ApplyFade(self, Time.HalfDawn, Time.Day, num * num6, num * num7);
-			}
-
-			this.timeSinceLog++;
-			if (this.timeSinceLog >= 15 && DO_LOGS) {
-				this.timeSinceLog = 0;
-				Debug.Log(self.room.world.rainCycle.dayNightCounter);
-				Debug.Log("MILESTONE 1: " + (num * 1.0f) + "    " + (self.room.world.rainCycle.dayNightCounter >= (num * 1.0f) ? "Passed" : ""));
-				Debug.Log("MILESTONE 2: " + (num * num2) + "    " + (self.room.world.rainCycle.dayNightCounter >= (num * num2) ? "Passed" : ""));
-				Debug.Log("MILESTONE 3: " + (num * num3) + "    " + (self.room.world.rainCycle.dayNightCounter >= (num * num3) ? "Passed" : ""));
-				Debug.Log("MILESTONE 4: " + (num * num4) + "    " + (self.room.world.rainCycle.dayNightCounter >= (num * num4) ? "Passed" : ""));
-				Debug.Log("MILESTONE 5: " + (num * num5) + "    " + (self.room.world.rainCycle.dayNightCounter >= (num * num5) ? "Passed" : ""));
-				Debug.Log("MILESTONE 6: " + (num * num6) + "    " + (self.room.world.rainCycle.dayNightCounter >= (num * num6) ? "Passed" : ""));
-				Debug.Log("MILESTONE 7: " + (num * num7) + "    " + (self.room.world.rainCycle.dayNightCounter >= (num * num7) ? "Passed" : ""));
-				Debug.Log("~~ Current Fade: " + self.paletteBlend);
-				Debug.Log("~~ Timer: " + self.room.world.rainCycle.timer + " / " + self.room.world.rainCycle.sunDownStartTime);
 			}
 		}
 		else {

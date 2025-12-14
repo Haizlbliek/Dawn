@@ -6,58 +6,58 @@ using System.IO;
 
 namespace Dawn;
 
-public class DawnDevTools {
+public static class DawnDevTools {
 	public static Time currentTime = Time.Day;
 
-	public void Initialize() {
+	public static void Initialize() {
 		currentTime = Time.NONE;
 
-		On.DevInterface.Page.ctor += this.On_Page_ctor;
-		On.DevInterface.RoomSettingsPage.Signal += this.On_RoomSettingsPage_Signal;
-		On.DevInterface.ObjectsPage.Signal += this.On_ObjectsPage_Signal;
-		On.DevInterface.SoundPage.Signal += this.On_SoundPage_Signal;
-		On.DevInterface.MapPage.Signal += this.On_MapPage_Signal;
-		On.DevInterface.TriggersPage.Signal += this.On_TriggersPage_Signal;
-		On.DevInterface.DialogPage.Signal += this.On_DialogPage_Signal;
+		On.DevInterface.Page.ctor += On_Page_ctor;
+		On.DevInterface.RoomSettingsPage.Signal += On_RoomSettingsPage_Signal;
+		On.DevInterface.ObjectsPage.Signal += On_ObjectsPage_Signal;
+		On.DevInterface.SoundPage.Signal += On_SoundPage_Signal;
+		On.DevInterface.MapPage.Signal += On_MapPage_Signal;
+		On.DevInterface.TriggersPage.Signal += On_TriggersPage_Signal;
+		On.DevInterface.DialogPage.Signal += On_DialogPage_Signal;
 
-		On.DevInterface.RoomSettingsPage.Refresh += this.On_RoomSettingsPage_Refresh;
-		On.RoomSettings.Save_string_bool += this.On_RoomSettings_Save;
-		On.RoomSettings.Load_Timeline += this.On_RoomSettings_Load;
+		On.DevInterface.RoomSettingsPage.Refresh += On_RoomSettingsPage_Refresh;
+		On.RoomSettings.Save_string_bool += On_RoomSettings_Save;
+		On.RoomSettings.Load_Timeline += On_RoomSettings_Load;
 
-		On.DevInterface.RoomSettingSlider.Refresh += this.On_RoomSettingSlider_Refresh;
-		On.DevInterface.RoomSettingSlider.NubDragged += this.On_RoomSettingSlider_NubDragged;
-		On.DevInterface.RoomSettingSlider.ClickedResetToInherent += this.On_RoomSettingSlider_ClickedResetToInherit;
+		On.DevInterface.RoomSettingSlider.Refresh += On_RoomSettingSlider_Refresh;
+		On.DevInterface.RoomSettingSlider.NubDragged += On_RoomSettingSlider_NubDragged;
+		On.DevInterface.RoomSettingSlider.ClickedResetToInherent += On_RoomSettingSlider_ClickedResetToInherit;
 
-		On.DevInterface.DevUI.SwitchPage += this.On_DevUI_SwitchPage;
+		On.DevInterface.DevUI.SwitchPage += On_DevUI_SwitchPage;
 
-		On.DevInterface.PaletteController.Increment += this.On_PaletteController_Increment;
+		On.DevInterface.PaletteController.Increment += On_PaletteController_Increment;
 	}
 
-	public void Cleanup() {
-		On.DevInterface.Page.ctor -= this.On_Page_ctor;
-		On.DevInterface.RoomSettingsPage.Signal += this.On_RoomSettingsPage_Signal;
-		On.DevInterface.ObjectsPage.Signal -= this.On_ObjectsPage_Signal;
-		On.DevInterface.SoundPage.Signal -= this.On_SoundPage_Signal;
-		On.DevInterface.MapPage.Signal -= this.On_MapPage_Signal;
-		On.DevInterface.TriggersPage.Signal -= this.On_TriggersPage_Signal;
-		On.DevInterface.DialogPage.Signal -= this.On_DialogPage_Signal;
+	public static void Cleanup() {
+		On.DevInterface.Page.ctor -= On_Page_ctor;
+		On.DevInterface.RoomSettingsPage.Signal += On_RoomSettingsPage_Signal;
+		On.DevInterface.ObjectsPage.Signal -= On_ObjectsPage_Signal;
+		On.DevInterface.SoundPage.Signal -= On_SoundPage_Signal;
+		On.DevInterface.MapPage.Signal -= On_MapPage_Signal;
+		On.DevInterface.TriggersPage.Signal -= On_TriggersPage_Signal;
+		On.DevInterface.DialogPage.Signal -= On_DialogPage_Signal;
 
-		On.DevInterface.RoomSettingsPage.Refresh -= this.On_RoomSettingsPage_Refresh;
-		On.RoomSettings.Save_string_bool -= this.On_RoomSettings_Save;
-		On.RoomSettings.Load_Timeline -= this.On_RoomSettings_Load;
+		On.DevInterface.RoomSettingsPage.Refresh -= On_RoomSettingsPage_Refresh;
+		On.RoomSettings.Save_string_bool -= On_RoomSettings_Save;
+		On.RoomSettings.Load_Timeline -= On_RoomSettings_Load;
 
-		On.DevInterface.RoomSettingSlider.Refresh -= this.On_RoomSettingSlider_Refresh;
-		On.DevInterface.RoomSettingSlider.NubDragged -= this.On_RoomSettingSlider_NubDragged;
-		On.DevInterface.RoomSettingSlider.ClickedResetToInherent -= this.On_RoomSettingSlider_ClickedResetToInherit;
+		On.DevInterface.RoomSettingSlider.Refresh -= On_RoomSettingSlider_Refresh;
+		On.DevInterface.RoomSettingSlider.NubDragged -= On_RoomSettingSlider_NubDragged;
+		On.DevInterface.RoomSettingSlider.ClickedResetToInherent -= On_RoomSettingSlider_ClickedResetToInherit;
 
-		On.DevInterface.DevUI.SwitchPage -= this.On_DevUI_SwitchPage;
+		On.DevInterface.DevUI.SwitchPage -= On_DevUI_SwitchPage;
 	}
 
 	public static Time GetCurrentTime() {
 		return currentTime;
 	}
 
-	private void On_DevUI_SwitchPage(On.DevInterface.DevUI.orig_SwitchPage orig, DevUI self, int newPage) {
+	private static void On_DevUI_SwitchPage(On.DevInterface.DevUI.orig_SwitchPage orig, DevUI self, int newPage) {
 		orig(self, newPage);
 
 		if (self.activePage is not RoomSettingsPage) {
@@ -65,7 +65,7 @@ public class DawnDevTools {
 		}
 	}
 
-	private void On_RoomSettingSlider_ClickedResetToInherit(On.DevInterface.RoomSettingSlider.orig_ClickedResetToInherent orig, RoomSettingSlider self) {
+	private static void On_RoomSettingSlider_ClickedResetToInherit(On.DevInterface.RoomSettingSlider.orig_ClickedResetToInherent orig, RoomSettingSlider self) {
 		RoomSettings backup = self.owner.room.roomSettings;
 
 		if (backup is DawnRoomSettings settings)
@@ -76,7 +76,7 @@ public class DawnDevTools {
 		self.owner.room.roomSettings = backup;
 	}
 
-	private void On_RoomSettingSlider_NubDragged(On.DevInterface.RoomSettingSlider.orig_NubDragged orig, RoomSettingSlider self, float nubPos) {
+	private static void On_RoomSettingSlider_NubDragged(On.DevInterface.RoomSettingSlider.orig_NubDragged orig, RoomSettingSlider self, float nubPos) {
 		RoomSettings backup = self.owner.room.roomSettings;
 
 		if (backup is DawnRoomSettings settings)
@@ -87,7 +87,7 @@ public class DawnDevTools {
 		self.owner.room.roomSettings = backup;
 	}
 
-	private void On_RoomSettingSlider_Refresh(On.DevInterface.RoomSettingSlider.orig_Refresh orig, RoomSettingSlider self) {
+	private static void On_RoomSettingSlider_Refresh(On.DevInterface.RoomSettingSlider.orig_Refresh orig, RoomSettingSlider self) {
 		RoomSettings backup = self.owner.room.roomSettings;
 
 		if (backup is DawnRoomSettings settings)
@@ -98,7 +98,7 @@ public class DawnDevTools {
 		self.owner.room.roomSettings = backup;
 	}
 
-	private void On_PaletteController_Increment(On.DevInterface.PaletteController.orig_Increment orig, PaletteController self, int change) {
+	private static void On_PaletteController_Increment(On.DevInterface.PaletteController.orig_Increment orig, PaletteController self, int change) {
 		RoomSettings backup = self.owner.room.roomSettings;
 
 		if (backup is DawnRoomSettings settings)
@@ -109,7 +109,7 @@ public class DawnDevTools {
 		self.owner.room.roomSettings = backup;
 	}
 
-	private bool On_RoomSettings_Load(On.RoomSettings.orig_Load_Timeline orig, RoomSettings self, SlugcatStats.Timeline timelinePoint) {
+	private static bool On_RoomSettings_Load(On.RoomSettings.orig_Load_Timeline orig, RoomSettings self, SlugcatStats.Timeline timelinePoint) {
 		if (self is not DawnRoomSettings settings)
 			return orig(self, timelinePoint);
 
@@ -137,7 +137,7 @@ public class DawnDevTools {
 		return result;
 	}
 
-	private void On_RoomSettings_Save(On.RoomSettings.orig_Save_string_bool orig, RoomSettings self, string path, bool saveAsTemplate) {
+	private static void On_RoomSettings_Save(On.RoomSettings.orig_Save_string_bool orig, RoomSettings self, string path, bool saveAsTemplate) {
 		orig(self, path, saveAsTemplate);
 
 		if (self is not DawnRoomSettings settings)
@@ -168,7 +168,7 @@ public class DawnDevTools {
 		settings.timeSettings = newSettings;
 	}
 
-	private void On_RoomSettingsPage_Refresh(On.DevInterface.RoomSettingsPage.orig_Refresh orig, RoomSettingsPage self) {
+	private static void On_RoomSettingsPage_Refresh(On.DevInterface.RoomSettingsPage.orig_Refresh orig, RoomSettingsPage self) {
 		RoomSettings backup = self.RoomSettings;
 
 		if (backup is DawnRoomSettings settings)
@@ -178,7 +178,7 @@ public class DawnDevTools {
 		self.owner.room.roomSettings = backup;
 	}
 
-	private void ApplyDawnSignals(Action<Page, DevUISignalType, DevUINode, string> orig, Page self, DevUISignalType type, DevUINode sender, string message) {
+	private static void ApplyDawnSignals(Action<Page, DevUISignalType, DevUINode, string> orig, Page self, DevUISignalType type, DevUINode sender, string message) {
 		if (type == DevUISignalType.ButtonClick) {
 			if (sender is DawnTimeButton button) {
 				currentTime = button.time;
@@ -201,31 +201,31 @@ public class DawnDevTools {
 	}
 
 
-	private void On_DialogPage_Signal(On.DevInterface.DialogPage.orig_Signal orig, DialogPage self, DevUISignalType type, DevUINode sender, string message) {
-		this.ApplyDawnSignals((self, type, sender, message) => orig((DialogPage) self, type, sender, message), self, type, sender, message);
+	private static void On_DialogPage_Signal(On.DevInterface.DialogPage.orig_Signal orig, DialogPage self, DevUISignalType type, DevUINode sender, string message) {
+		ApplyDawnSignals((self, type, sender, message) => orig((DialogPage) self, type, sender, message), self, type, sender, message);
 	}
 
-	private void On_TriggersPage_Signal(On.DevInterface.TriggersPage.orig_Signal orig, TriggersPage self, DevUISignalType type, DevUINode sender, string message) {
-		this.ApplyDawnSignals((self, type, sender, message) => orig((TriggersPage) self, type, sender, message), self, type, sender, message);
+	private static void On_TriggersPage_Signal(On.DevInterface.TriggersPage.orig_Signal orig, TriggersPage self, DevUISignalType type, DevUINode sender, string message) {
+		ApplyDawnSignals((self, type, sender, message) => orig((TriggersPage) self, type, sender, message), self, type, sender, message);
 	}
 
-	private void On_MapPage_Signal(On.DevInterface.MapPage.orig_Signal orig, MapPage self, DevUISignalType type, DevUINode sender, string message) {
-		this.ApplyDawnSignals((self, type, sender, message) => orig((MapPage) self, type, sender, message), self, type, sender, message);
+	private static void On_MapPage_Signal(On.DevInterface.MapPage.orig_Signal orig, MapPage self, DevUISignalType type, DevUINode sender, string message) {
+		ApplyDawnSignals((self, type, sender, message) => orig((MapPage) self, type, sender, message), self, type, sender, message);
 	}
 
-	private void On_SoundPage_Signal(On.DevInterface.SoundPage.orig_Signal orig, SoundPage self, DevUISignalType type, DevUINode sender, string message) {
-		this.ApplyDawnSignals((self, type, sender, message) => orig((SoundPage) self, type, sender, message), self, type, sender, message);
+	private static void On_SoundPage_Signal(On.DevInterface.SoundPage.orig_Signal orig, SoundPage self, DevUISignalType type, DevUINode sender, string message) {
+		ApplyDawnSignals((self, type, sender, message) => orig((SoundPage) self, type, sender, message), self, type, sender, message);
 	}
 
-	private void On_ObjectsPage_Signal(On.DevInterface.ObjectsPage.orig_Signal orig, ObjectsPage self, DevUISignalType type, DevUINode sender, string message) {
-		this.ApplyDawnSignals((self, type, sender, message) => orig((ObjectsPage) self, type, sender, message), self, type, sender, message);
+	private static void On_ObjectsPage_Signal(On.DevInterface.ObjectsPage.orig_Signal orig, ObjectsPage self, DevUISignalType type, DevUINode sender, string message) {
+		ApplyDawnSignals((self, type, sender, message) => orig((ObjectsPage) self, type, sender, message), self, type, sender, message);
 	}
 
-	private void On_RoomSettingsPage_Signal(On.DevInterface.RoomSettingsPage.orig_Signal orig, RoomSettingsPage self, DevUISignalType type, DevUINode sender, string message) {
-		this.ApplyDawnSignals((self, type, sender, message) => orig((RoomSettingsPage) self, type, sender, message), self, type, sender, message);
+	private static void On_RoomSettingsPage_Signal(On.DevInterface.RoomSettingsPage.orig_Signal orig, RoomSettingsPage self, DevUISignalType type, DevUINode sender, string message) {
+		ApplyDawnSignals((self, type, sender, message) => orig((RoomSettingsPage) self, type, sender, message), self, type, sender, message);
 	}
 
-	private void On_Page_ctor(On.DevInterface.Page.orig_ctor orig, Page self, DevUI owner, string IDstring, DevUINode parentNode, string name) {
+	private static void On_Page_ctor(On.DevInterface.Page.orig_ctor orig, Page self, DevUI owner, string IDstring, DevUINode parentNode, string name) {
 		orig(self, owner, IDstring, parentNode, name);
 
 		if (self is not DevInterface.RoomSettingsPage)
