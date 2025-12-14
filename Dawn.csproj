@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
 	<PropertyGroup>
 		<RainWorldDllPath>C:\Program Files (x86)\Steam\steamapps\common\Rain World\RainWorld_Data\Managed\</RainWorldDllPath>
 		<BepInEx>C:\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\</BepInEx>
@@ -13,11 +12,8 @@
 
 	<PropertyGroup>
 		<TargetFramework>net48</TargetFramework>
-
 		<ImplicitUsings>disable</ImplicitUsings>
-
 		<Nullable>disable</Nullable>
-
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 
@@ -32,10 +28,6 @@
 		<Reference Include="$(BepInEx)/plugins/HOOKS-Assembly-CSharp.dll"><Private>false</Private></Reference>
 		<Reference Include="$(BepInEx)/utils/PUBLIC-Assembly-CSharp.dll"><Private>false</Private></Reference>
 
-		<!-- <Reference Include="C:\Program Files (x86)\Steam\steamapps\workshop\content\312520\2920439476\plugins\RegionKit.dll"><Private>false</Private></Reference> -->
 		<Reference Include="$(BepInEx)/core/0Harmony.dll"><Private>false</Private></Reference>
-
-		<!-- <Reference Include="C:\Program Files (x86)\Steam\steamapps\workshop\content\312520\2933196558\plugins\SlugBase.dll"><Private>false</Private></Reference> -->
 	</ItemGroup>
-
 </Project>

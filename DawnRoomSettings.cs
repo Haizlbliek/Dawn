@@ -1,158 +1,160 @@
 using System.Collections.Generic;
 
-namespace Dawn {
-	class DawnRoomSettings : RoomSettings {
-		public DawnRoomSettings(RoomSettings settings) : base(settings.room, "roottemplate", null, settings.isTemplate, settings.isFirstTemplate, null, settings.game) {
-			this.name = settings.name;
-			this.parent = settings.parent;
-			this.isAncestor = settings.isAncestor;
-			this.filePath = settings.filePath;
+namespace Dawn;
 
-			this.effects = settings.effects;
-			this.ambientSounds = settings.ambientSounds;
-			this.placedObjects = settings.placedObjects;
-			this.triggers = settings.triggers;
-			this.fadePalette = settings.fadePalette;
-			this.terrainFadePalette = settings.terrainFadePalette;
+public class DawnRoomSettings : RoomSettings {
+	public DawnRoomSettings(RoomSettings settings) : base(settings.room, "roottemplate", null, settings.isTemplate, settings.isFirstTemplate, null, settings.game) {
+		this.name = settings.name;
+		this.parent = settings.parent;
+		this.isAncestor = settings.isAncestor;
+		this.filePath = settings.filePath;
 
-			this.dType = settings.dType;
-			this.rInts = settings.rInts;
-			this.rumInts = settings.rumInts;
-			this.cDrips = settings.cDrips;
-			this.wSpeed = settings.wSpeed;
-			this.wAmp = settings.wAmp;
-			this.wLength = settings.wLength;
-			this.swAmp = settings.swAmp;
-			this.swLength = settings.swLength;
-			this.clds = settings.clds;
-			this.grm = settings.grm;
-			this.bkgDrnVl = settings.bkgDrnVl;
-			this.bkgDrnNoThreatVol = settings.bkgDrnNoThreatVol;
-			this.rndItmDns = settings.rndItmDns;
-			this.rndItmSprChnc = settings.rndItmSprChnc;
-			this.wtrRflctAlpha = settings.wtrRflctAlpha;
-			this.pal = settings.pal;
-			this.eColA = settings.eColA;
-			this.eColB = settings.eColB;
-			this.roomSpecificScript = settings.roomSpecificScript;
-			this.wetTerrain = settings.wetTerrain;
-			this.terrainLight = settings.terrainLight;
-			this.terrainStainAmount = settings.terrainStainAmount;
-			this.terrainStainBrightness = settings.terrainStainBrightness;
-			this.terrainStainHeight = settings.terrainStainHeight;
-			this.terrainWaves = settings.terrainWaves;
-			this.terrainEdgeRadius = settings.terrainEdgeRadius;
-			this.terrainGooHeight = settings.terrainGooHeight;
-			this.terrainGrain = settings.terrainGrain;
-			this.terrainDepth = settings.terrainDepth;
-			this.terrainSkyFade = settings.terrainSkyFade;
-			this.terrainPalette = settings.terrainPalette;
+		this.effects = settings.effects;
+		this.ambientSounds = settings.ambientSounds;
+		this.placedObjects = settings.placedObjects;
+		this.triggers = settings.triggers;
+		this.fadePalette = settings.fadePalette;
+		this.terrainFadePalette = settings.terrainFadePalette;
 
-			this.timeSettings = [];
-			foreach (string time in Time.values.entries) {
-				RoomSettings timeSetting = (time == "NONE") ? settings : new RoomSettings(null, "roottemplate", null, false, false, null, null);
+		this.dType = settings.dType;
+		this.rInts = settings.rInts;
+		this.rumInts = settings.rumInts;
+		this.cDrips = settings.cDrips;
+		this.wSpeed = settings.wSpeed;
+		this.wAmp = settings.wAmp;
+		this.wLength = settings.wLength;
+		this.swAmp = settings.swAmp;
+		this.swLength = settings.swLength;
+		this.clds = settings.clds;
+		this.grm = settings.grm;
+		this.bkgDrnVl = settings.bkgDrnVl;
+		this.bkgDrnNoThreatVol = settings.bkgDrnNoThreatVol;
+		this.rndItmDns = settings.rndItmDns;
+		this.rndItmSprChnc = settings.rndItmSprChnc;
+		this.wtrRflctAlpha = settings.wtrRflctAlpha;
+		this.pal = settings.pal;
+		this.eColA = settings.eColA;
+		this.eColB = settings.eColB;
+		this.roomSpecificScript = settings.roomSpecificScript;
+		this.wetTerrain = settings.wetTerrain;
+		this.terrainLight = settings.terrainLight;
+		this.terrainStainAmount = settings.terrainStainAmount;
+		this.terrainStainBrightness = settings.terrainStainBrightness;
+		this.terrainStainHeight = settings.terrainStainHeight;
+		this.terrainWaves = settings.terrainWaves;
+		this.terrainEdgeRadius = settings.terrainEdgeRadius;
+		this.terrainGooHeight = settings.terrainGooHeight;
+		this.terrainGrain = settings.terrainGrain;
+		this.terrainDepth = settings.terrainDepth;
+		this.terrainSkyFade = settings.terrainSkyFade;
+		this.terrainPalette = settings.terrainPalette;
 
-				timeSetting.parent = DefaultRoomSettings.ancestor;
+		this.timeSettings = [];
+		foreach (string time in Time.values.entries) {
+			RoomSettings timeSetting = (time == "NONE") ? settings : new RoomSettings(null, "roottemplate", null, false, false, null, null);
 
-				this.timeSettings.Add(new Time(time, false), timeSetting);
+			timeSetting.parent = DefaultRoomSettings.ancestor;
+
+			this.timeSettings.Add(new Time(time, false), timeSetting);
+		}
+
+		if (!this.Load(this.game?.TimelinePoint)) {
+			string text2 = WorldLoader.FindRoomFile(this.name, false, ".txt", true);
+			if (text2 != null) {
+				this.filePath = text2.Substring(0, text2.Length - 4) + "_settings.txt";
+				this.Load((SlugcatStats.Timeline) null);
 			}
+		}
+	}
 
-			if (!this.Load(this.game?.TimelinePoint)) {
-				string text2 = WorldLoader.FindRoomFile(this.name, false, ".txt", true);
-				if (text2 != null) {
-					this.filePath = text2.Substring(0, text2.Length - 4) + "_settings.txt";
-					this.Load((SlugcatStats.Timeline) null);
+	public void SetAll() {
+		List<RoomEffect.Type> types = [];
+		List<RoomEffect.Type> selfHas = [];
+
+		foreach (KeyValuePair<Time, RoomSettings> entry in this.timeSettings) {
+			if (entry.Key == Time.NONE) {
+				foreach (RoomEffect effect in entry.Value.effects) {
+					types.Add(effect.type);
+					selfHas.Add(effect.type);
+				}
+			}
+			else {
+				foreach (RoomEffect effect in entry.Value.effects) {
+					types.Add(effect.type);
 				}
 			}
 		}
 
-		public void SetAll() {
-			List<RoomEffect.Type> types = [];
-			List<RoomEffect.Type> selfHas = [];
+		foreach (RoomEffect.Type type in types) {
+			if (selfHas.Contains(type))
+				continue;
 
-			foreach (KeyValuePair<Time, RoomSettings> entry in this.timeSettings) {
-				if (entry.Key == Time.NONE) {
-					foreach (RoomEffect effect in entry.Value.effects) {
-						types.Add(effect.type);
-						selfHas.Add(effect.type);
-					}
-				}
-				else {
-					foreach (RoomEffect effect in entry.Value.effects) {
-						types.Add(effect.type);
-					}
-				}
-			}
-
-			foreach (RoomEffect.Type type in types) {
-				if (selfHas.Contains(type))
-					continue;
-
-				this.effects.Add(new RoomEffect(type, 0.0f, false));
-			}
+			this.effects.Add(new RoomEffect(type, 0.0f, false));
 		}
+	}
 
-		public RoomSettings CopyMainTo(RoomSettings settings) {
-			settings.ambientSounds = this.ambientSounds;
-			settings.placedObjects = this.placedObjects;
-			settings.triggers = this.triggers;
-			settings.fadePalette = this.fadePalette;
+	public RoomSettings CopyMainTo(RoomSettings settings) {
+		settings.ambientSounds = this.ambientSounds;
+		settings.placedObjects = this.placedObjects;
+		settings.triggers = this.triggers;
+		settings.fadePalette = this.fadePalette;
 
-			settings.dType = this.dType;
-			// settings.bkgDrnVl = this.bkgDrnVl; // NOTE: Idk
-			// settings.bkgDrnNoThreatVol = this.bkgDrnNoThreatVol; // NOTE: Idk
-			settings.pal = this.pal;
-			settings.eColA = this.eColA;
-			settings.eColB = this.eColB;
-			settings.roomSpecificScript = this.roomSpecificScript;
-			settings.wetTerrain = this.wetTerrain;
+		settings.dType = this.dType;
+		// settings.bkgDrnVl = this.bkgDrnVl; // NOTE: Idk
+		// settings.bkgDrnNoThreatVol = this.bkgDrnNoThreatVol; // NOTE: Idk
+		settings.pal = this.pal;
+		settings.eColA = this.eColA;
+		settings.eColB = this.eColB;
+		settings.roomSpecificScript = this.roomSpecificScript;
+		settings.wetTerrain = this.wetTerrain;
 
-			return settings;
+		return settings;
+	}
+
+	public RoomSettings GetTimeSetting(Time time) {
+		try {
+			return this.timeSettings[time];
 		}
-
-		public RoomSettings GetTimeSetting(Time time) {
-			try {
-				return this.timeSettings[time];
-			}
-			catch (KeyNotFoundException) {
-				return null;
-			}
+		catch (KeyNotFoundException) {
+			return null;
 		}
+	}
 
-		public Dictionary<Time, RoomSettings> timeSettings;
+	public Dictionary<Time, RoomSettings> timeSettings;
 
-		public static bool EmptySettings(RoomSettings settings) {
-			if (settings is DawnRoomSettings)
-				return false;
+	public static bool EmptySettings(RoomSettings settings) {
+		if (settings is DawnRoomSettings)
+			return false;
 
-			return
-				settings.effects.Count == 0 &&
-				settings.terrainFadePalette == null &&
-				settings.terrainLight == null &&
-				settings.terrainLight == null &&
-				settings.terrainStainAmount == null &&
-				settings.terrainStainBrightness == null &&
-				settings.terrainStainHeight == null &&
-				settings.terrainWaves == null &&
-				settings.terrainEdgeRadius == null &&
-				settings.terrainGooHeight == null &&
-				settings.terrainGrain == null &&
-				settings.terrainDepth == null &&
-				settings.terrainSkyFade == null &&
-				settings.terrainPalette == null &&
-				settings.rInts == null &&
-				settings.rumInts == null &&
-				settings.cDrips == null &&
-				settings.wSpeed == null &&
-				settings.wAmp == null &&
-				settings.wLength == null &&
-				settings.swAmp == null &&
-				settings.swLength == null &&
-				settings.clds == null &&
-				settings.grm == null &&
-				settings.rndItmDns == null &&
-				settings.rndItmSprChnc == null &&
-				settings.wtrRflctAlpha == null;
-		}
+		return
+			settings.effects.Count == 0 &&
+			settings.terrainFadePalette == null &&
+			settings.terrainLight == null &&
+			settings.terrainLight == null &&
+			settings.terrainStainAmount == null &&
+			settings.terrainStainBrightness == null &&
+			settings.terrainStainHeight == null &&
+			settings.terrainWaves == null &&
+			settings.terrainEdgeRadius == null &&
+			settings.terrainGooHeight == null &&
+			settings.terrainGrain == null &&
+			settings.terrainDepth == null &&
+			settings.terrainSkyFade == null &&
+			settings.terrainPalette == null &&
+			settings.rInts == null &&
+			settings.rumInts == null &&
+			settings.cDrips == null &&
+			settings.wSpeed == null &&
+			settings.wAmp == null &&
+			settings.wLength == null &&
+			settings.swAmp == null &&
+			settings.swLength == null &&
+			settings.clds == null &&
+			settings.grm == null &&
+			settings.rndItmDns == null &&
+			settings.rndItmSprChnc == null &&
+			settings.wtrRflctAlpha == null &&
+			settings.pal == null &&
+			settings.fadePalette == null;
 	}
 }
