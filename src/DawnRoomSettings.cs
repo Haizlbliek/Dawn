@@ -1,8 +1,11 @@
 using System.Collections.Generic;
+using Unity.Mathematics;
 
 namespace Dawn;
 
 public class DawnRoomSettings : RoomSettings {
+	public Dictionary<Time, RoomSettings> timeSettings;
+
 	public DawnRoomSettings(RoomSettings settings) : base(settings.room, "roottemplate", null, settings.isTemplate, settings.isFirstTemplate, null, settings.game) {
 		this.name = settings.name;
 		this.parent = settings.parent;
@@ -112,15 +115,12 @@ public class DawnRoomSettings : RoomSettings {
 	}
 
 	public RoomSettings GetTimeSetting(Time time) {
-		try {
-			return this.timeSettings[time];
+		if (this.timeSettings.TryGetValue(time, out RoomSettings value)) {
+			return value;
 		}
-		catch (KeyNotFoundException) {
-			return null;
-		}
-	}
 
-	public Dictionary<Time, RoomSettings> timeSettings;
+		return null;
+	}
 
 	public static bool EmptySettings(RoomSettings settings) {
 		if (settings is DawnRoomSettings)

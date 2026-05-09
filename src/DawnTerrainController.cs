@@ -32,7 +32,7 @@ public static class TerrainController {
 		RoomSettings backup = owner.room.roomSettings;
 
 		if (backup is DawnRoomSettings settings)
-			owner.room.roomSettings = settings.GetTimeSetting(DawnDevTools.currentTime);
+			owner.room.roomSettings = settings.GetTimeSetting(DawnDevTools.CurrentTime);
 		orig(self, owner, id, parentNode, pos);
 
 		owner.room.roomSettings = backup;
@@ -42,7 +42,7 @@ public static class TerrainController {
 		RoomSettings backup = self.owner.room.roomSettings;
 
 		if (backup is DawnRoomSettings settings)
-			self.owner.room.roomSettings = settings.GetTimeSetting(DawnDevTools.GetCurrentTime());
+			self.owner.room.roomSettings = settings.GetTimeSetting(DawnDevTools.CurrentTime);
 		orig(self, nubPos);
 
 		self.owner.room.roomSettings = backup;
@@ -52,7 +52,7 @@ public static class TerrainController {
 		RoomSettings backup = self.owner.room.roomSettings;
 
 		if (backup is DawnRoomSettings settings)
-			self.owner.room.roomSettings = settings.GetTimeSetting(DawnDevTools.GetCurrentTime());
+			self.owner.room.roomSettings = settings.GetTimeSetting(DawnDevTools.CurrentTime);
 		orig(self);
 
 		self.owner.room.roomSettings = backup;
@@ -62,7 +62,7 @@ public static class TerrainController {
 		RoomSettings backup = self.owner.room.roomSettings;
 
 		if (backup is DawnRoomSettings settings)
-			self.owner.room.roomSettings = settings.GetTimeSetting(DawnDevTools.GetCurrentTime());
+			self.owner.room.roomSettings = settings.GetTimeSetting(DawnDevTools.CurrentTime);
 		orig(self, type, sender, message);
 
 		self.owner.room.roomSettings = backup;
@@ -72,7 +72,7 @@ public static class TerrainController {
 		RoomSettings backup = self.owner.room.roomSettings;
 
 		if (backup is DawnRoomSettings settings)
-			self.owner.room.roomSettings = settings.GetTimeSetting(DawnDevTools.GetCurrentTime());
+			self.owner.room.roomSettings = settings.GetTimeSetting(DawnDevTools.CurrentTime);
 		orig(self);
 
 		self.owner.room.roomSettings = backup;

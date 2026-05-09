@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<RainWorldDllPath>C:\Program Files (x86)\Steam\steamapps\common\Rain World\RainWorld_Data\Managed\</RainWorldDllPath>
-		<BepInEx>C:\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\</BepInEx>
-		<OutputDirectory>C:\Program Files (x86)\Steam\steamapps\common\Rain World\RainWorld_Data\StreamingAssets\mods\dawn\plugins\</OutputDirectory>
+		<OutputDirectory>../Dawn/plugins/</OutputDirectory>
 	</PropertyGroup>
 
 	<Target Name="CopyData" AfterTargets="AfterBuild">
@@ -24,10 +22,9 @@
 		<Reference Include="$(RainWorldDllPath)/UnityEngine.CoreModule.dll"><Private>false</Private></Reference>
 		<Reference Include="$(RainWorldDllPath)/UnityEngine.AudioModule.dll"><Private>false</Private></Reference>
 		<Reference Include="$(RainWorldDllPath)/UnityEngine.InputLegacyModule.dll"><Private>false</Private></Reference>
-		<Reference Include="$(BepInEx)/core/BepInEx.dll"><Private>false</Private></Reference>
-		<Reference Include="$(BepInEx)/plugins/HOOKS-Assembly-CSharp.dll"><Private>false</Private></Reference>
-		<Reference Include="$(BepInEx)/utils/PUBLIC-Assembly-CSharp.dll"><Private>false</Private></Reference>
-
-		<Reference Include="$(BepInEx)/core/0Harmony.dll"><Private>false</Private></Reference>
+		<Reference Include="$(RainWorldBepInEx)/core/BepInEx.dll"><Private>false</Private></Reference>
+		<Reference Include="$(RainWorldBepInEx)/plugins/HOOKS-Assembly-CSharp.dll"><Private>false</Private></Reference>
+		<Reference Include="$(RainWorldBepInEx)/utils/PUBLIC-Assembly-CSharp.dll"><Private>false</Private></Reference>
+		<Reference Include="$(RainWorldBepInEx)/core/0Harmony.dll"><Private>false</Private></Reference>
 	</ItemGroup>
 </Project>

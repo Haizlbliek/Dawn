@@ -330,12 +330,12 @@ public class Plugin : BaseUnityPlugin {
 	}
 
 	public void On_RoomCamera_UpdateDayNightPalette(On.RoomCamera.orig_UpdateDayNightPalette orig, RoomCamera self) {
-		float effect_dawn = self.room.roomSettings.GetEffectAmount(DawnEnums.Dawn);
+		bool hasDawn = self.room.roomSettings.GetEffect(DawnEnums.Dawn) != null;
 		DawnRainCycle dawnRainCycle = self.room.world.rainCycle as DawnRainCycle;
 
-		dawnRainCycle?.inRoomWithDawn = effect_dawn > 0.0f;
+		dawnRainCycle?.inRoomWithDawn = hasDawn;
 
-		if (effect_dawn > 0f && self.room.world.rainCycle.timer >= self.room.world.rainCycle.cycleLength) {
+		if (hasDawn && self.room.world.rainCycle.timer >= self.room.world.rainCycle.cycleLength) {
 			// TODO: Effect colors
 			// TODO: Check terrain palettes
 			float num = 1320f;
@@ -374,7 +374,7 @@ public class Plugin : BaseUnityPlugin {
 
 		self.dayNightNeedsRefresh = false;
 
-		self.ApplyEffectColorsToAllPaletteTextures(self.room.roomSettings.EffectColorA, self.room.roomSettings.EffectColorB);
+		// self.ApplyEffectColorsToAllPaletteTextures(self.room.roomSettings.EffectColorA, self.room.roomSettings.EffectColorB); // TODO
 		TimeController.ApplyRoomSettings(self.room);
 	}
 }

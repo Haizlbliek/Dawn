@@ -11,6 +11,6 @@ public class DawnTimeButton : DawnButton {
 	}
 
 	public override bool Active() {
-		return DawnDevTools.currentTime == this.time;
+		return DawnDevTools.CurrentTime == this.time;
 	}
 }
