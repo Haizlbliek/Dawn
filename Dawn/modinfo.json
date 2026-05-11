@@ -1,0 +1,20 @@
+{
+  "id": "dawn",
+  "name": "Dawn",
+  "version": "1.2.3",
+  "target_game_version": "v1.11.8",
+  "authors": "Haizlbliek, Nytrok07",
+  "description": "Adds a proper day/night cycle",
+  "requirements": [],
+  "requirements_names": [],
+  "priorities": [],
+  "tags": [
+    "Game Mechanics",
+    "Cosmetics",
+    "Dependency",
+    "Base",
+    "Downpour",
+    "Watcher"
+  ],
+  "checksum_override_version": false
+}

@@ -1,0 +1,19 @@
+{
+  "Title": "Dawn 1.2.2",
+  "Description": "Dawn is a utility mod that allows developers to add a proper day/night cycle to their regions.\r\nPerfect if you want no rain for your mod!\r\n\r\nCurrently:\r\n- Allows creature to exit their dens during there assigned times (Day/Night based on a flag that already exists).\r\n- Has a custom night cycle timer\r\n- Threat theme support (hopefully)\r\n\r\nHowever there are currently some compatibility issues and bugs:\r\nRegion kit fade palletes currently override the fades.\r\nFull rain isn\u0027t supported, this mod is meant for making regions with no rain, or just a small drizzle.\r\n\r\n[h1]Changes[/h1]\r\nFixed a few bugs:\r\n- Intro Cutscenes to a few slugcats now work again\r\n- Having no fade palette no longer crashes the game\r\n\r\nAdded:\r\n- Effect Colours can now be changed based on the time (HalfDusk/Dusk/Night/Dawn/HalfDawn)\r\n- Buttons now exist in Dev Tools to add time-specific room effects \u0026 [spoiler]terrain settings[/spoiler]",
+  "ID": "dawn",
+  "Version": "1.2.2",
+  "TargetGameVersion": "v1.10.4",
+  "Requirements": "",
+  "RequirementNames": "",
+  "Authors": "Haizlbliek\nNytrok07",
+  "Visibility": "Unlisted",
+  "Tags": [
+    "Game Mechanics",
+    "Cosmetics",
+    "Dependency"
+  ],
+  "WorkshopID": 3417857252,
+  "UploadFilesOnly": true,
+  "UploadThumbnail": false
+}
